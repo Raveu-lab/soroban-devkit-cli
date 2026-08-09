@@ -19,14 +19,14 @@ The CLI binary is `sdev`, registered via the `bin` field in `package.json`.
 ┌───────────────────────▼─────────────────────────────────┐
 │                     cli.ts (entry point)                 │
 │              Commander.js program registration           │
-└───────┬───────────────┬──────────────┬──────────────────┘
-        │               │              │
-┌───────▼──────┐ ┌──────▼──────┐ ┌────▼────────────┐
-│ simulate.ts  │ │  decode.ts  │ │   monitor.ts    │
-│  (command)   │ │  (command)  │ │   (command)     │
-└───────┬──────┘ └──────┬──────┘ └────┬────────────┘
-        │               │              │
-        └───────────────┴──────────────┘
+└───────┬───────────────┬──────────────┬───────────────────┘
+        │               │              │                   │
+┌───────▼──────┐ ┌──────▼──────┐ ┌────▼────────┐ ┌───────▼──────┐
+│ simulate.ts  │ │  decode.ts  │ │ monitor.ts  │ │ bindings.ts  │
+│  (command)   │ │  (command)  │ │  (command)  │ │  (command)   │
+└───────┬──────┘ └──────┬──────┘ └────┬────────┘ └───────┬──────┘
+        │               │              │                   │
+        └───────────────┴──────────────┴───────────────────┘
                         │ calls
 ┌───────────────────────▼─────────────────────────────────┐
 │               soroban-devkit-core                        │
@@ -154,7 +154,7 @@ ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs })
 process.on('SIGINT', () => monitor.stop())
 ```
 
-**Long-running:** This command runs indefinitely until `Ctrl+C`. The `ora` spinner indicates polling activity between events.
+**Long-running:** This command runs indefinitely until `Ctrl+C`. Progress is indicated by a status line written to stderr between polling cycles.
 
 ---
 
