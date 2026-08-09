@@ -23,17 +23,30 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
+      # Check out and build soroban-devkit-core since it is not yet on npm
+      - name: Checkout soroban-devkit-core
+        uses: actions/checkout@v4
+        with:
+          repository: Raveu-lab/soroban-devkit-core
+          path: soroban-devkit-core
 
-      - name: Lint
-        run: npm run lint
+      - name: Install and build soroban-devkit-core
+        run: |
+          cd soroban-devkit-core
+          npm install
+          npm run build
+
+      - name: Install CLI dependencies
+        run: npm install
 
       - name: Build
         run: npm run build
 
       - name: Test
         run: npm test
+
+      - name: Lint
+        run: npm run lint
 
       - name: Verify binary
         run: node dist/cli.js --version
