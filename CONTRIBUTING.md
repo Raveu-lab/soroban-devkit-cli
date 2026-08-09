@@ -13,7 +13,7 @@ This project is part of the **Stellar Wave Program** on [Drips](https://drips.ne
 ### Setup
 
 ```bash
-git clone https://github.com/soroban-devkit/soroban-devkit-cli
+git clone https://github.com/Raveu-lab/soroban-devkit-cli
 cd soroban-devkit-cli
 npm install
 npm run build
@@ -32,7 +32,7 @@ node dist/cli.js monitor --network testnet --contract CXXX
 
 ## Picking Up an Issue
 
-1. Browse [open issues](https://github.com/soroban-devkit/soroban-devkit-cli/issues)
+1. Browse [open issues](https://github.com/Raveu-lab/soroban-devkit-cli/issues)
 2. Issues tagged `good first issue` are beginner-friendly
 3. Comment to claim an issue before starting
 
