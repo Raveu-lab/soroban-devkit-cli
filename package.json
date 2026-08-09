@@ -14,7 +14,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "@soroban-devkit/core": "^0.1.0",
+    "@soroban-devkit/core": "file:../soroban-devkit-core",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "ora": "^8.0.1",

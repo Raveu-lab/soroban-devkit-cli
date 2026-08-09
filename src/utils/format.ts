@@ -1,48 +1,113 @@
 import { ContractEvent, SimulationResult } from "@soroban-devkit/core";
 
 /**
- * Terminal output formatting utilities.
- * All user-facing output goes through these functions.
- * No Stellar/Soroban logic lives here.
+ * format.ts
+ *
+ * Pure formatting functions — each takes data and returns a string.
+ * No side effects, no stdout writes. Commands handle the printing.
+ * This makes every formatter independently testable.
  */
 
+/**
+ * Format a SimulationResult into a human-readable string.
+ */
+export function formatSimulationResult(
+  result: SimulationResult,
+  contractId: string,
+  method: string,
+  network: string
+): string {
+  if (!result.success) {
+    return `\n✖ Simulation failed\n\n  ${result.error}\n`;
+  }
+
+  const cpu = Number(result.cost.cpuInstructions).toLocaleString();
+  const mem = Number(result.cost.memoryBytes).toLocaleString();
+  const inst = result.footprint.instructions.toLocaleString();
+
+  return [
+    "",
+    "✔ Simulation successful",
+    "",
+    `  Method:            ${method}`,
+    `  Contract:          ${contractId}`,
+    `  Network:           ${network}`,
+    "",
+    `  CPU Instructions : ${cpu}`,
+    `  Memory Bytes     : ${mem}`,
+    `  Instructions     : ${inst}`,
+    "",
+  ].join("\n");
+}
+
+/**
+ * Format a decoded ContractEvent into a human-readable string.
+ */
+export function formatEvent(event: ContractEvent): string {
+  const time = new Date(event.ledgerClosedAt).toLocaleTimeString();
+  const lines: string[] = [
+    `[${time}] Ledger ${event.ledger}  ${event.contractId.slice(0, 8)}...`,
+  ];
+
+  if (event.decodedTopics?.length) {
+    lines.push(`  topics: ${JSON.stringify(event.decodedTopics)}`);
+  }
+  if (event.decodedData !== undefined) {
+    lines.push(`  data:   ${JSON.stringify(event.decodedData)}`);
+  }
+  lines.push("");
+
+  return lines.join("\n");
+}
+
+/**
+ * Format an error message.
+ */
+export function formatError(message: string): string {
+  return `✖ ${message}`;
+}
+
+/**
+ * Format a success message.
+ */
+export function formatSuccess(message: string): string {
+  return `✔ ${message}`;
+}
+
+/**
+ * Print a formatted SimulationResult to stdout/stderr.
+ */
 export function printSimulationResult(
   result: SimulationResult,
   contractId: string,
   method: string,
   network: string
 ): void {
+  const output = formatSimulationResult(result, contractId, method, network);
   if (result.success) {
-    process.stdout.write(`\n✔ Simulation successful\n\n`);
-    process.stdout.write(`  Method:   ${method}\n`);
-    process.stdout.write(`  Contract: ${contractId}\n`);
-    process.stdout.write(`  Network:  ${network}\n\n`);
-    process.stdout.write(`  CPU Instructions : ${Number(result.cost.cpuInstructions).toLocaleString()}\n`);
-    process.stdout.write(`  Memory Bytes     : ${Number(result.cost.memoryBytes).toLocaleString()}\n`);
-    process.stdout.write(`  Instructions     : ${result.footprint.instructions.toLocaleString()}\n\n`);
+    process.stdout.write(output + "\n");
   } else {
-    process.stderr.write(`\n✖ Simulation failed\n\n`);
-    process.stderr.write(`  ${result.error}\n\n`);
+    process.stderr.write(output + "\n");
   }
 }
 
+/**
+ * Print a decoded ContractEvent to stdout.
+ */
 export function printEvent(event: ContractEvent): void {
-  const time = new Date(event.ledgerClosedAt).toLocaleTimeString();
-  process.stdout.write(`[${time}] Ledger ${event.ledger}  ${event.contractId.slice(0, 8)}...\n`);
-
-  if (event.decodedTopics?.length) {
-    process.stdout.write(`  topics: ${JSON.stringify(event.decodedTopics)}\n`);
-  }
-  if (event.decodedData !== undefined) {
-    process.stdout.write(`  data:   ${JSON.stringify(event.decodedData)}\n`);
-  }
-  process.stdout.write("\n");
+  process.stdout.write(formatEvent(event) + "\n");
 }
 
-export function printSuccess(message: string): void {
-  process.stdout.write(`✔ ${message}\n`);
-}
-
+/**
+ * Print an error message to stderr.
+ */
 export function printError(message: string): void {
-  process.stderr.write(`✖ ${message}\n`);
+  process.stderr.write(formatError(message) + "\n");
+}
+
+/**
+ * Print a success message to stdout.
+ */
+export function printSuccess(message: string): void {
+  process.stdout.write(formatSuccess(message) + "\n");
 }
