@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Stellar Wave Program](https://img.shields.io/badge/Stellar-Wave%20Program-blueviolet)](https://stellar.org)
 [![npm version](https://img.shields.io/npm/v/@soroban-devkit/cli)](https://www.npmjs.com/package/@soroban-devkit/cli)
-[![CI](https://github.com/soroban-devkit/soroban-devkit-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/soroban-devkit/soroban-devkit-cli/actions)
+[![CI](https://github.com/Raveu-lab/soroban-devkit-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Raveu-lab/soroban-devkit-cli/actions)
 
 ---
 
@@ -13,7 +13,7 @@
 
 `soroban-devkit-cli` puts the full power of the Soroban DevKit in your terminal. One command to simulate a contract call. One command to watch a contract live. One command to decode an event you just copy-pasted from an explorer.
 
-The CLI is built on top of [`soroban-devkit-core`](https://github.com/soroban-devkit/soroban-devkit-core) and exposes all its features through a clean, scriptable interface — no code required.
+The CLI is built on top of [`soroban-devkit-core`](https://github.com/Raveu-lab/soroban-devkit-core) and exposes all its features through a clean, scriptable interface — no code required.
 
 ---
 
@@ -155,7 +155,6 @@ sdev bindings generate \
 | `--network` | `mainnet`, `testnet`, `futurenet`, `local` | `testnet` |
 | `--rpc-url` | Custom RPC endpoint (overrides `--network`) | — |
 | `--json` | Output raw JSON instead of formatted tables | `false` |
-| `--quiet` | Suppress all output except errors | `false` |
 
 ---
 
@@ -207,7 +206,7 @@ This project is part of the **Stellar Wave Program** on [Drips](https://drips.ne
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up an issue.
 
-**Good first issues** are tagged [`good first issue`](https://github.com/soroban-devkit/soroban-devkit-cli/issues?q=label%3A%22good+first+issue%22) on GitHub.
+**Good first issues** are tagged [`good first issue`](https://github.com/Raveu-lab/soroban-devkit-cli/issues?q=label%3A%22good+first+issue%22) on GitHub.
 
 ---
 
