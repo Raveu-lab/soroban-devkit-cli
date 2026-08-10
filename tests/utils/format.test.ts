@@ -76,3 +76,83 @@ describe("format utilities", () => {
     });
   });
 });
+
+describe("format — additional edge cases", () => {
+  describe("formatSimulationResult", () => {
+    it("includes the contract ID in output", () => {
+      const result: SimulationResult = {
+        success: true,
+        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { cpuInstructions: "0", memoryBytes: "0" },
+      };
+      const output = formatSimulationResult(result, "CMYCONTRACT", "ping", "testnet");
+      expect(output).toContain("CMYCONTRACT");
+    });
+
+    it("formats zero CPU instructions as 0", () => {
+      const result: SimulationResult = {
+        success: true,
+        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { cpuInstructions: "0", memoryBytes: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "ping", "testnet");
+      expect(output).toContain("0");
+    });
+
+    it("uses locale-formatted numbers for large CPU values", () => {
+      const result: SimulationResult = {
+        success: true,
+        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { cpuInstructions: "1000000", memoryBytes: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "ping", "testnet");
+      expect(output).toContain("1,000,000");
+    });
+  });
+
+  describe("formatError", () => {
+    it("starts with the error indicator", () => {
+      expect(formatError("bad input")).toMatch(/^✖/);
+    });
+  });
+
+  describe("formatSuccess", () => {
+    it("starts with the success indicator", () => {
+      expect(formatSuccess("done")).toMatch(/^✔/);
+    });
+  });
+
+  describe("formatEvent", () => {
+    it("shows contract ID prefix in output", () => {
+      const event: ContractEvent = {
+        ledger: 1,
+        ledgerClosedAt: "2024-01-01T00:00:00Z",
+        contractId: "CABCDEFGHIJK",
+        id: "1",
+        type: "contract",
+        topics: [],
+        data: "",
+        decodedTopics: [],
+        decodedData: null,
+      };
+      const output = formatEvent(event);
+      expect(output).toContain("CABCDEFG");
+    });
+
+    it("omits topics line when decodedTopics is empty", () => {
+      const event: ContractEvent = {
+        ledger: 1,
+        ledgerClosedAt: "2024-01-01T00:00:00Z",
+        contractId: "CTEST",
+        id: "1",
+        type: "contract",
+        topics: [],
+        data: "",
+        decodedTopics: [],
+        decodedData: undefined,
+      };
+      const output = formatEvent(event);
+      expect(output).not.toContain("topics:");
+    });
+  });
+});
