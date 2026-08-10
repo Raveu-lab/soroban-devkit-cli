@@ -3,6 +3,14 @@ import { BindingGenerator } from "@soroban-devkit/core";
 import { printSuccess, printError } from "../utils/format";
 import { loadConfig } from "../utils/config";
 
+/**
+ * Generate TypeScript bindings from a deployed contract's on-chain WASM spec.
+ *
+ * @example
+ * ```bash
+ * sdev bindings generate --network testnet --contract CXXXXX --output ./generated
+ * ```
+ */
 export function registerBindings(program: Command): void {
   const bindings = program
     .command("bindings")
