@@ -23,8 +23,9 @@ export function registerSimulate(program: Command): void {
         // Parse args — contributors will extend this to full XDR arg parsing (issue #5)
         let args: xdr.ScVal[] = [];
         if (opts.args && opts.args !== "[]") {
-          // TODO: parse JSON args into xdr.ScVal array
-          // See: https://github.com/soroban-devkit/soroban-devkit-cli/issues/5
+          // TODO: Parse JSON args string into typed xdr.ScVal array
+          // Each element type needs to be inferred from the JSON value
+          // See: https://github.com/Raveu-lab/soroban-devkit-cli/issues/5
           args = [];
         }
 
