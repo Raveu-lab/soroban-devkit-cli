@@ -13,6 +13,7 @@ const CONFIG_FILE = "sdev.config.json";
 /**
  * Load sdev.config.json from the current working directory.
  * Returns an empty config object if the file does not exist.
+ * Returns an empty config and logs a warning if the file is malformed JSON.
  */
 export function loadConfig(): SdevConfig {
   const configPath = path.resolve(process.cwd(), CONFIG_FILE);
