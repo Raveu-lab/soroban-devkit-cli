@@ -6,6 +6,9 @@ import { ContractEvent, SimulationResult } from "@soroban-devkit/core";
  * Pure formatting functions — each takes data and returns a string.
  * No side effects, no stdout writes. Commands handle the printing.
  * This makes every formatter independently testable.
+ *
+ * Rule: every function added here must have a test in
+ * tests/utils/format.test.ts before the PR is opened.
  */
 
 /**
