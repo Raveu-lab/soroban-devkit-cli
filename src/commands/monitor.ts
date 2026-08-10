@@ -3,6 +3,15 @@ import { ContractMonitor } from "@soroban-devkit/core";
 import { printEvent, printError } from "../utils/format";
 import { loadConfig } from "../utils/config";
 
+/**
+ * Watch Soroban contracts for real-time events.
+ * Runs indefinitely until Ctrl+C. Prints decoded events to stdout.
+ *
+ * @example
+ * ```bash
+ * sdev monitor --network testnet --contract CXXXXX --filter transfer
+ * ```
+ */
 export function registerMonitor(program: Command): void {
   program
     .command("monitor")
