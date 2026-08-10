@@ -8,7 +8,7 @@ export interface SdevConfig {
   pollingIntervalMs?: number;
 }
 
-const CONFIG_FILE = "sdev.config.json";
+export const CONFIG_FILE = "sdev.config.json";
 
 /**
  * Load sdev.config.json from the current working directory.
