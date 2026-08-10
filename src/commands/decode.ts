@@ -2,6 +2,16 @@ import { Command } from "commander";
 import { EventDecoder, ContractEvent } from "@soroban-devkit/core";
 import { printError } from "../utils/format";
 
+/**
+ * Decode a raw base64 XDR event blob into human-readable JSON.
+ * Reads from --data flag or stdin pipe.
+ *
+ * @example
+ * ```bash
+ * sdev decode --data "AAAAB..."
+ * echo "AAAAB..." | sdev decode
+ * ```
+ */
 export function registerDecode(program: Command): void {
   program
     .command("decode")
