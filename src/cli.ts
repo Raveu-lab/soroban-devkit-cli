@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * sdev — Soroban DevKit CLI
- * Entry point. Registers all commands and parses argv.
+ *
+ * Entry point. Registers all sub-commands and parses process.argv.
+ * No business logic lives here — only command registration.
  */
 
 import { Command } from "commander";
