@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { ContractSimulator } from "@soroban-devkit/core";
 import { printSimulationResult, printError } from "../utils/format";
 import { loadConfig } from "../utils/config";
+import { resolveNetworkConfig } from "../utils/network";
 import { xdr } from "@stellar/stellar-sdk";
 
 export function registerSimulate(program: Command): void {
@@ -19,17 +20,12 @@ export function registerSimulate(program: Command): void {
       try {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
+        const networkConfig = resolveNetworkConfig(network);
+        const simulator = new ContractSimulator(networkConfig);
 
-        // Parse args — contributors will extend this to full XDR arg parsing (issue #5)
-        let args: xdr.ScVal[] = [];
-        if (opts.args && opts.args !== "[]") {
-          // TODO: Parse JSON args string into typed xdr.ScVal array
-          // Each element type needs to be inferred from the JSON value
-          // See: https://github.com/Raveu-lab/soroban-devkit-cli/issues/5
-          args = [];
-        }
-
-        const simulator = new ContractSimulator(network);
+        // TODO: Parse JSON args string into typed xdr.ScVal array
+        // See: https://github.com/Raveu-lab/soroban-devkit-cli/issues/5
+        const args: xdr.ScVal[] = [];
         const result = await simulator.simulate(
           opts.contract,
           opts.method,
