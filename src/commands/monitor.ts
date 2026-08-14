@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { ContractMonitor } from "@soroban-devkit/core";
 import { printEvent, printError } from "../utils/format";
 import { loadConfig } from "../utils/config";
+import { resolveNetworkConfig } from "../utils/network";
 
 /**
  * Watch Soroban contracts for real-time events.
@@ -25,10 +26,11 @@ export function registerMonitor(program: Command): void {
       try {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
+        const networkConfig = resolveNetworkConfig(network);
         const contractIds = opts.contract ?? config.contracts ?? [];
         const pollingIntervalMs = parseInt(opts.interval, 10);
 
-        const monitor = new ContractMonitor(network);
+        const monitor = new ContractMonitor(networkConfig);
 
         monitor
           .watch({
