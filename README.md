@@ -3,7 +3,6 @@
 > The command-line interface for the Soroban DevKit — simulate, decode, monitor, and generate bindings from your terminal.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Stellar Wave Program](https://img.shields.io/badge/Stellar-Wave%20Program-blueviolet)](https://stellar.org)
 [![npm version](https://img.shields.io/npm/v/@soroban-devkit/cli)](https://www.npmjs.com/package/@soroban-devkit/cli)
 [![CI](https://github.com/Raveu-lab/soroban-devkit-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Raveu-lab/soroban-devkit-cli/actions)
 
@@ -202,7 +201,7 @@ soroban-devkit-cli/
 
 ## Contributing
 
-This project is part of the **Stellar Wave Program** on [Drips](https://drips.network). Contributors earn rewards for completing issues during active Wave sprints.
+This project is open source and welcomes contributions from the Stellar developer community.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up an issue.
 
@@ -224,4 +223,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up
 
 MIT — see [LICENSE](LICENSE).
 
-Built for the Stellar ecosystem. Sponsored by the [Stellar Development Foundation](https://stellar.org) via the Stellar Wave Program.
+Built for the Stellar ecosystem.
