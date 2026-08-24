@@ -1,9 +1,25 @@
 import { Command } from "commander";
-import { ContractSimulator } from "@soroban-devkit/core";
+import { ContractSimulator, ArgEncoder } from "@soroban-devkit/core";
 import { printSimulationResult, printError } from "../utils/format";
 import { loadConfig } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
-import { xdr } from "@stellar/stellar-sdk";
+
+/**
+ * Parse the --args JSON string into a plain array, ready for ArgEncoder.
+ * Throws a descriptive error for invalid JSON or a non-array value.
+ */
+export function parseArgs(raw: string): unknown[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error(`--args must be valid JSON: ${raw}`);
+  }
+  if (!Array.isArray(parsed)) {
+    throw new Error("--args must be a JSON array, e.g. '[\"GABC...\", 1000]'");
+  }
+  return parsed;
+}
 
 export function registerSimulate(program: Command): void {
   program
@@ -23,9 +39,8 @@ export function registerSimulate(program: Command): void {
         const networkConfig = resolveNetworkConfig(network);
         const simulator = new ContractSimulator(networkConfig);
 
-        // TODO: Parse JSON args string into typed xdr.ScVal array
-        // See: https://github.com/Raveu-lab/soroban-devkit-cli/issues/5
-        const args: xdr.ScVal[] = [];
+        const encoder = new ArgEncoder();
+        const args = encoder.encodeArgs(parseArgs(opts.args));
         const result = await simulator.simulate(
           opts.contract,
           opts.method,
