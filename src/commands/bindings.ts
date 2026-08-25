@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { BindingGenerator } from "@soroban-devkit/core";
 import { printSuccess, printError } from "../utils/format";
-import { loadConfig } from "../utils/config";
+import { loadConfig, resolveContractId } from "../utils/config";
 
 /**
  * Generate TypeScript bindings from a deployed contract's on-chain WASM spec.
@@ -26,15 +26,16 @@ export function registerBindings(program: Command): void {
       try {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
+        const contractId = resolveContractId(opts.contract, config);
 
         const gen = new BindingGenerator({
-          contractId: opts.contract,
+          contractId,
           outputDir: opts.output,
           network,
         });
 
         await gen.generate();
-        printSuccess(`Bindings written to ${opts.output}/${opts.contract.slice(0, 8)}_bindings.ts`);
+        printSuccess(`Bindings written to ${opts.output}/${contractId.slice(0, 8)}_bindings.ts`);
       } catch (err) {
         printError(err instanceof Error ? err.message : String(err));
         process.exit(1);

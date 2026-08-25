@@ -168,9 +168,21 @@ You can set defaults in a `sdev.config.json` file in your project root to avoid 
     "CXXXXXX...",
     "CYYYYYY..."
   ],
-  "pollingIntervalMs": 5000
+  "pollingIntervalMs": 5000,
+  "aliases": {
+    "token": "CXXXXXX...",
+    "multisig": "CYYYYYY..."
+  }
 }
 ```
+
+`aliases` lets `--contract` take a friendly name instead of a raw `C...` ID, in `simulate`, `bindings generate`, and `monitor`:
+
+```bash
+sdev simulate --contract token --method balance --caller GXXXXXX...
+```
+
+An unrecognized value is passed through unchanged, so this is purely additive — existing configs and raw contract IDs keep working exactly as before.
 
 ---
 
@@ -215,7 +227,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up
 - [ ] `sdev diff` — compare contract state before and after a call
 - [ ] `sdev chain` — simulate a sequence of multi-step contract calls
 - [ ] Shell autocompletion (bash, zsh, fish)
-- [ ] `sdev.config.json` full support with contract aliases
 
 ---
 

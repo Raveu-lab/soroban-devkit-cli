@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { loadConfig, CONFIG_FILE } from "../../src/utils/config";
+import { loadConfig, resolveContractId, CONFIG_FILE } from "../../src/utils/config";
 
 describe("loadConfig", () => {
   let tmpDir: string;
@@ -41,5 +41,31 @@ describe("loadConfig", () => {
     fs.writeFileSync(path.join(tmpDir, CONFIG_FILE), "{ invalid json }");
     expect(() => loadConfig()).not.toThrow();
     expect(loadConfig()).toEqual({});
+  });
+
+  it("reads aliases from config file", () => {
+    fs.writeFileSync(
+      path.join(tmpDir, CONFIG_FILE),
+      JSON.stringify({ aliases: { token: "CABC" } })
+    );
+    expect(loadConfig().aliases).toEqual({ token: "CABC" });
+  });
+});
+
+describe("resolveContractId", () => {
+  it("resolves a known alias to its contract ID", () => {
+    expect(resolveContractId("token", { aliases: { token: "CABC" } })).toBe("CABC");
+  });
+
+  it("returns the input unchanged when it is not a known alias", () => {
+    expect(resolveContractId("CXYZ", { aliases: { token: "CABC" } })).toBe("CXYZ");
+  });
+
+  it("returns the input unchanged when no aliases are configured", () => {
+    expect(resolveContractId("CXYZ", {})).toBe("CXYZ");
+  });
+
+  it("is case-sensitive — an alias only matches an exact key", () => {
+    expect(resolveContractId("Token", { aliases: { token: "CABC" } })).toBe("Token");
   });
 });

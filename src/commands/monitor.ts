@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { ContractMonitor } from "@soroban-devkit/core";
 import { printEvent, printError } from "../utils/format";
-import { loadConfig } from "../utils/config";
+import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
 /**
@@ -27,7 +27,9 @@ export function registerMonitor(program: Command): void {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
         const networkConfig = resolveNetworkConfig(network);
-        const contractIds = opts.contract ?? config.contracts ?? [];
+        const contractIds = (opts.contract ?? config.contracts ?? []).map((id: string) =>
+          resolveContractId(id, config)
+        );
         const pollingIntervalMs = parseInt(opts.interval, 10);
 
         const monitor = new ContractMonitor(networkConfig);

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { ContractSimulator, ArgEncoder } from "@soroban-devkit/core";
 import { printSimulationResult, printError } from "../utils/format";
-import { loadConfig } from "../utils/config";
+import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
 /**
@@ -38,20 +38,16 @@ export function registerSimulate(program: Command): void {
         const network = opts.network ?? config.network ?? "testnet";
         const networkConfig = resolveNetworkConfig(network);
         const simulator = new ContractSimulator(networkConfig);
+        const contractId = resolveContractId(opts.contract, config);
 
         const encoder = new ArgEncoder();
         const args = encoder.encodeArgs(parseArgs(opts.args));
-        const result = await simulator.simulate(
-          opts.contract,
-          opts.method,
-          args,
-          opts.caller
-        );
+        const result = await simulator.simulate(contractId, opts.method, args, opts.caller);
 
         if (opts.json) {
           process.stdout.write(JSON.stringify(result, null, 2) + "\n");
         } else {
-          printSimulationResult(result, opts.contract, opts.method, network);
+          printSimulationResult(result, contractId, opts.method, network);
         }
 
         process.exit(result.success ? 0 : 1);
