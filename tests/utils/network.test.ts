@@ -46,6 +46,25 @@ describe("resolveNetworkConfig", () => {
   it("error message lists valid options", () => {
     expect(() => resolveNetworkConfig("bad")).toThrow("testnet");
   });
+
+  it("overrides rpcUrl when one is provided", () => {
+    const config = resolveNetworkConfig("testnet", "https://my-custom-node.example");
+    expect(config.rpcUrl).toBe("https://my-custom-node.example");
+    expect(config.network).toBe("testnet");
+    expect(config.networkPassphrase).toContain("Test SDF Network");
+  });
+
+  it("does not mutate the shared NETWORK_CONFIGS entry when overriding rpcUrl", () => {
+    resolveNetworkConfig("testnet", "https://my-custom-node.example");
+    // A later call with no override must see the real default again —
+    // proves the override didn't leak into shared state.
+    expect(resolveNetworkConfig("testnet").rpcUrl).not.toBe("https://my-custom-node.example");
+  });
+
+  it("ignores an empty-string rpcUrl override", () => {
+    const config = resolveNetworkConfig("testnet", "");
+    expect(config.rpcUrl).not.toBe("");
+  });
 });
 
 describe("resolveRpcUrl", () => {

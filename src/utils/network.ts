@@ -19,14 +19,20 @@ export function isValidNetwork(value: string): value is Network {
 /**
  * Resolve a network name string to a full NetworkConfig.
  * Throws a descriptive error if the network name is not recognised.
+ *
+ * If `rpcUrlOverride` is a non-empty string, the returned config's rpcUrl is
+ * replaced with it (e.g. from --rpc-url) — everything else (notably the
+ * network passphrase) still comes from the named network. Returns a new
+ * object; never mutates the shared NETWORK_CONFIGS entry.
  */
-export function resolveNetworkConfig(network: string): NetworkConfig {
+export function resolveNetworkConfig(network: string, rpcUrlOverride?: string): NetworkConfig {
   if (!isValidNetwork(network)) {
     throw new Error(
       `Unknown network "${network}". Valid options: ${VALID_NETWORKS.join(", ")}`
     );
   }
-  return NETWORK_CONFIGS[network];
+  const config = NETWORK_CONFIGS[network];
+  return rpcUrlOverride ? { ...config, rpcUrl: rpcUrlOverride } : config;
 }
 
 /**
