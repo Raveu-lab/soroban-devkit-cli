@@ -172,6 +172,9 @@ You can set defaults in a `sdev.config.json` file in your project root to avoid 
   "aliases": {
     "token": "CXXXXXX...",
     "multisig": "CYYYYYY..."
+  },
+  "rpcHeaders": {
+    "X-Api-Key": "..."
   }
 }
 ```
@@ -183,6 +186,14 @@ sdev simulate --contract token --method balance --caller GXXXXXX...
 ```
 
 An unrecognized value is passed through unchanged, so this is purely additive — existing configs and raw contract IDs keep working exactly as before.
+
+`rpcHeaders` is sent with every RPC request — useful for a paid provider that requires an API key. Combine with `--rpc-url` (also available on `simulate`, `bindings generate`, and `monitor`) to point at that provider:
+
+```bash
+sdev simulate --contract token --method balance --caller GXXXXXX... --rpc-url https://my-provider.example/rpc
+```
+
+Note: `bindings generate` accepts `--rpc-url` but does not send `rpcHeaders` — the underlying stellar-sdk call it uses has no way to attach custom headers.
 
 ---
 
