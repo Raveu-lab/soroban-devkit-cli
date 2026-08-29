@@ -36,7 +36,7 @@ export function registerSimulate(program: Command): void {
       try {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
-        const networkConfig = resolveNetworkConfig(network, opts.rpcUrl);
+        const networkConfig = resolveNetworkConfig(network, opts.rpcUrl, config.rpcHeaders);
         const simulator = new ContractSimulator(networkConfig);
         const contractId = resolveContractId(opts.contract, config);
 

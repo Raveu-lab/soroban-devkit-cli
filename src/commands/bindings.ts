@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { BindingGenerator } from "@soroban-devkit/core";
 import { printSuccess, printError } from "../utils/format";
 import { loadConfig, resolveContractId } from "../utils/config";
+import { resolveNetworkConfig } from "../utils/network";
 
 /**
  * Generate TypeScript bindings from a deployed contract's on-chain WASM spec.
@@ -22,16 +23,18 @@ export function registerBindings(program: Command): void {
     .requiredOption("--contract <id>", "Contract ID in C... format")
     .option("--output <dir>", "Output directory for generated files", "./generated")
     .option("--network <network>", "Network: mainnet | testnet | futurenet | local")
+    .option("--rpc-url <url>", "Custom RPC endpoint (overrides --network)")
     .action(async (opts) => {
       try {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
         const contractId = resolveContractId(opts.contract, config);
+        const networkConfig = resolveNetworkConfig(network, opts.rpcUrl, config.rpcHeaders);
 
         const gen = new BindingGenerator({
           contractId,
           outputDir: opts.output,
-          network,
+          network: networkConfig,
         });
 
         await gen.generate();

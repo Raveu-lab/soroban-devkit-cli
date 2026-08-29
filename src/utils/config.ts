@@ -8,6 +8,8 @@ export interface SdevConfig {
   pollingIntervalMs?: number;
   /** Friendly name -> contract ID, so --contract can take an alias instead of a raw C... ID */
   aliases?: Record<string, string>;
+  /** Extra HTTP headers sent with every RPC request — e.g. an API key for a paid provider */
+  rpcHeaders?: Record<string, string>;
 }
 
 export const CONFIG_FILE = "sdev.config.json";

@@ -21,12 +21,13 @@ export function registerMonitor(program: Command): void {
     .option("--filter <event>", "Filter by event name (matches first topic)")
     .option("--interval <ms>", "Polling interval in milliseconds", "5000")
     .option("--network <network>", "Network: mainnet | testnet | futurenet | local")
+    .option("--rpc-url <url>", "Custom RPC endpoint (overrides --network)")
     .option("--start-ledger <ledger>", "Start from this ledger sequence number")
     .action(async (opts) => {
       try {
         const config = loadConfig();
         const network = opts.network ?? config.network ?? "testnet";
-        const networkConfig = resolveNetworkConfig(network);
+        const networkConfig = resolveNetworkConfig(network, opts.rpcUrl, config.rpcHeaders);
         const contractIds = (opts.contract ?? config.contracts ?? []).map((id: string) =>
           resolveContractId(id, config)
         );

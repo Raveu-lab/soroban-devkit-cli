@@ -65,6 +65,21 @@ describe("resolveNetworkConfig", () => {
     const config = resolveNetworkConfig("testnet", "");
     expect(config.rpcUrl).not.toBe("");
   });
+
+  it("attaches headers when provided", () => {
+    const config = resolveNetworkConfig("testnet", undefined, { "X-Api-Key": "secret" });
+    expect(config.headers).toEqual({ "X-Api-Key": "secret" });
+  });
+
+  it("does not set headers when none are provided", () => {
+    const config = resolveNetworkConfig("testnet");
+    expect(config.headers).toBeUndefined();
+  });
+
+  it("does not mutate the shared NETWORK_CONFIGS entry when attaching headers", () => {
+    resolveNetworkConfig("testnet", undefined, { "X-Api-Key": "secret" });
+    expect(resolveNetworkConfig("testnet").headers).toBeUndefined();
+  });
 });
 
 describe("resolveRpcUrl", () => {

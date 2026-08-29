@@ -22,17 +22,27 @@ export function isValidNetwork(value: string): value is Network {
  *
  * If `rpcUrlOverride` is a non-empty string, the returned config's rpcUrl is
  * replaced with it (e.g. from --rpc-url) — everything else (notably the
- * network passphrase) still comes from the named network. Returns a new
- * object; never mutates the shared NETWORK_CONFIGS entry.
+ * network passphrase) still comes from the named network. If `headers` is
+ * provided (e.g. from sdev.config.json's rpcHeaders), it's attached too.
+ * Returns a new object; never mutates the shared NETWORK_CONFIGS entry.
  */
-export function resolveNetworkConfig(network: string, rpcUrlOverride?: string): NetworkConfig {
+export function resolveNetworkConfig(
+  network: string,
+  rpcUrlOverride?: string,
+  headers?: Record<string, string>
+): NetworkConfig {
   if (!isValidNetwork(network)) {
     throw new Error(
       `Unknown network "${network}". Valid options: ${VALID_NETWORKS.join(", ")}`
     );
   }
   const config = NETWORK_CONFIGS[network];
-  return rpcUrlOverride ? { ...config, rpcUrl: rpcUrlOverride } : config;
+  if (!rpcUrlOverride && !headers) return config;
+  return {
+    ...config,
+    ...(rpcUrlOverride ? { rpcUrl: rpcUrlOverride } : {}),
+    ...(headers ? { headers } : {}),
+  };
 }
 
 /**

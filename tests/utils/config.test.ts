@@ -50,6 +50,14 @@ describe("loadConfig", () => {
     );
     expect(loadConfig().aliases).toEqual({ token: "CABC" });
   });
+
+  it("reads rpcHeaders from config file", () => {
+    fs.writeFileSync(
+      path.join(tmpDir, CONFIG_FILE),
+      JSON.stringify({ rpcHeaders: { "X-Api-Key": "secret" } })
+    );
+    expect(loadConfig().rpcHeaders).toEqual({ "X-Api-Key": "secret" });
+  });
 });
 
 describe("resolveContractId", () => {
