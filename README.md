@@ -147,6 +147,20 @@ sdev bindings generate \
 
 ---
 
+### `sdev completion`
+
+Print a shell completion script for `bash`, `zsh`, or `fish`.
+
+```bash
+sdev completion bash > /etc/bash_completion.d/sdev   # or: >> ~/.bashrc
+sdev completion zsh > "${fpath[1]}/_sdev"
+sdev completion fish > ~/.config/fish/completions/sdev.fish
+```
+
+Completes top-level commands (`simulate`, `decode`, `monitor`, `bindings`, `completion`) and each command's flags.
+
+---
+
 ## Global Options
 
 | Flag | Description | Default |
@@ -207,14 +221,22 @@ soroban-devkit-cli/
 │   │   ├── simulate.ts
 │   │   ├── decode.ts
 │   │   ├── monitor.ts
-│   │   └── bindings.ts
+│   │   ├── bindings.ts
+│   │   └── completion.ts
 │   └── utils/
 │       ├── format.ts      # Table and color formatting helpers
-│       └── config.ts      # Config file loader
+│       ├── config.ts      # Config file loader, contract aliases
+│       ├── network.ts     # Network name/RPC config resolution
+│       └── completion.ts  # Shell completion script generation
 ├── tests/
-│   └── commands/
-│       ├── simulate.test.ts
-│       └── decode.test.ts
+│   ├── commands/
+│   │   ├── simulate.test.ts
+│   │   └── decode.test.ts
+│   └── utils/
+│       ├── config.test.ts
+│       ├── format.test.ts
+│       ├── network.test.ts
+│       └── completion.test.ts
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -237,7 +259,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up
 - [ ] `sdev replay` — replay a historical transaction locally
 - [ ] `sdev diff` — compare contract state before and after a call
 - [ ] `sdev chain` — simulate a sequence of multi-step contract calls
-- [ ] Shell autocompletion (bash, zsh, fish)
 
 ---
 

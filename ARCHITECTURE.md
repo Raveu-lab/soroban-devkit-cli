@@ -35,6 +35,11 @@ The CLI binary is `sdev`, registered via the `bin` field in `package.json`.
 └─────────────────────────────────────────────────────────┘
         │
         ▼
+```
+
+`completion.ts` is a fifth command, omitted above since it never calls into `soroban-devkit-core` — it only reads the static command/flag table in `utils/completion.ts` and prints a script. Everything else in this diagram still applies to it (registered from `cli.ts` the same way).
+
+```
 ┌─────────────────────────────────────────────────────────┐
 │                utils/format.ts                           │
 │         chalk | table | ora spinner                      │
@@ -162,7 +167,7 @@ process.on('SIGINT', () => monitor.stop())
 
 **Sub-commands:** `bindings generate`
 
-**Input:** `--contract`, `--output`, `--network`
+**Input:** `--contract`, `--output`, `--network`, `--rpc-url`
 
 **Flow:**
 ```
@@ -170,6 +175,22 @@ BindingGenerator({ contractId, outputDir, network }).generate()
   └─ writes file to disk
        └─ print success path
 ```
+
+Note: `--rpc-url` works here (core's `BindingGenerator` accepts a full `NetworkConfig`), but `rpcHeaders` from `sdev.config.json` is not sent — core's underlying `Client.from()` call has no headers option.
+
+---
+
+### `completion`
+
+**Input:** one positional argument, `<shell>` (`bash`, `zsh`, or `fish`)
+
+**Flow:**
+```
+getCompletionScript(shell)   ← pure string generation, no shell invoked
+  └─ print script to stdout
+```
+
+The command list and each command's flags are declared once in `utils/completion.ts` — keep that in sync when adding a command or flag elsewhere.
 
 ---
 
@@ -195,8 +216,20 @@ interface SdevConfig {
   network?: Network;
   contracts?: string[];
   pollingIntervalMs?: number;
+  aliases?: Record<string, string>;    // --contract can pass a friendly name instead of a raw C... ID
+  rpcHeaders?: Record<string, string>; // sent with every RPC request, e.g. an API key
 }
 ```
+
+`resolveContractId(idOrAlias, config)` resolves `aliases`; an unrecognized value passes through unchanged.
+
+### `utils/network.ts`
+
+Resolves a `--network` name (or `sdev.config.json`'s `network`) to a full `NetworkConfig`, optionally overriding `rpcUrl` (from `--rpc-url`) and attaching `headers` (from `rpcHeaders`). Always returns a new object — never mutates core's shared `NETWORK_CONFIGS` entries.
+
+### `utils/completion.ts`
+
+Generates bash/zsh/fish completion scripts from one command+flags table (`COMMANDS`). Pure string generation — no shell is invoked, nothing is written to disk here; `commands/completion.ts` handles printing to stdout.
 
 ---
 
@@ -230,14 +263,22 @@ soroban-devkit-cli/
 │   │   ├── simulate.ts
 │   │   ├── decode.ts
 │   │   ├── monitor.ts
-│   │   └── bindings.ts
+│   │   ├── bindings.ts
+│   │   └── completion.ts
 │   └── utils/
 │       ├── format.ts
-│       └── config.ts
+│       ├── config.ts
+│       ├── network.ts
+│       └── completion.ts
 ├── tests/
-│   └── commands/
-│       ├── simulate.test.ts
-│       └── decode.test.ts
+│   ├── commands/
+│   │   ├── simulate.test.ts
+│   │   └── decode.test.ts
+│   └── utils/
+│       ├── config.test.ts
+│       ├── format.test.ts
+│       ├── network.test.ts
+│       └── completion.test.ts
 ├── package.json
 ├── tsconfig.json
 ├── ARCHITECTURE.md
