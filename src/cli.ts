@@ -11,6 +11,7 @@ import { registerSimulate } from "./commands/simulate";
 import { registerDecode } from "./commands/decode";
 import { registerMonitor } from "./commands/monitor";
 import { registerBindings } from "./commands/bindings";
+import { registerCompletion } from "./commands/completion";
 
 const program = new Command();
 
@@ -23,5 +24,6 @@ registerSimulate(program);
 registerDecode(program);
 registerMonitor(program);
 registerBindings(program);
+registerCompletion(program);
 
 program.parse(process.argv);
