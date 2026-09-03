@@ -12,21 +12,21 @@ describe("getCompletionScript", () => {
 
   it("bash script lists every top-level command", () => {
     const script = getCompletionScript("bash");
-    for (const cmd of ["simulate", "decode", "monitor", "bindings"]) {
+    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion"]) {
       expect(script).toContain(cmd);
     }
   });
 
   it("zsh script lists every top-level command", () => {
     const script = getCompletionScript("zsh");
-    for (const cmd of ["simulate", "decode", "monitor", "bindings"]) {
+    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion"]) {
       expect(script).toContain(cmd);
     }
   });
 
   it("fish script lists every top-level command", () => {
     const script = getCompletionScript("fish");
-    for (const cmd of ["simulate", "decode", "monitor", "bindings"]) {
+    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion"]) {
       expect(script).toContain(cmd);
     }
   });

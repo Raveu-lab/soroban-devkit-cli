@@ -44,6 +44,10 @@ const COMMANDS: CommandSpec[] = [
     name: "bindings",
     flags: ["--contract", "--output", "--network", "--rpc-url"],
   },
+  {
+    name: "chain",
+    flags: ["--steps", "--network", "--rpc-url", "--continue-on-failure", "--json"],
+  },
   { name: "completion", flags: [] },
 ];
 
