@@ -37,7 +37,7 @@ The CLI binary is `sdev`, registered via the `bin` field in `package.json`.
         ▼
 ```
 
-`completion.ts` is a fifth command, omitted above since it never calls into `soroban-devkit-core` — it only reads the static command/flag table in `utils/completion.ts` and prints a script. Everything else in this diagram still applies to it (registered from `cli.ts` the same way).
+`chain.ts` is a fifth command, omitted above only for diagram space — it fits the same box row as the other four, calling into core's `ContractSimulator.simulateSequence()`. `completion.ts` is the sixth and the real exception: it never calls into `soroban-devkit-core` at all — it only reads the static command/flag table in `utils/completion.ts` and prints a script. Both are still registered from `cli.ts` the same way as everything else.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -180,6 +180,22 @@ Note: `--rpc-url` works here (core's `BindingGenerator` accepts a full `NetworkC
 
 ---
 
+### `chain`
+
+**Input:** `--steps` (JSON array of `{ contract, method, args, caller }`), `--network`, `--rpc-url`, `--continue-on-failure`, `--json`
+
+**Flow:**
+```
+parseSteps(opts.steps)          → ChainStep[], validated (min 1, required fields)
+  │
+  └─ simulator.simulateSequence(steps.map(...), { stopOnFailure })
+       └─ print each result, prefixed "— step N/M: method —"
+```
+
+Each step's `contract` goes through the same `resolveContractId()` alias resolution as `simulate`. This is core's `simulateSequence()` under the hood — see its own docs for why this checks "would each step succeed" rather than composing steps into one atomic transaction.
+
+---
+
 ### `completion`
 
 **Input:** one positional argument, `<shell>` (`bash`, `zsh`, or `fish`)
@@ -264,6 +280,7 @@ soroban-devkit-cli/
 │   │   ├── decode.ts
 │   │   ├── monitor.ts
 │   │   ├── bindings.ts
+│   │   ├── chain.ts
 │   │   └── completion.ts
 │   └── utils/
 │       ├── format.ts
@@ -273,7 +290,8 @@ soroban-devkit-cli/
 ├── tests/
 │   ├── commands/
 │   │   ├── simulate.test.ts
-│   │   └── decode.test.ts
+│   │   ├── decode.test.ts
+│   │   └── chain.test.ts
 │   └── utils/
 │       ├── config.test.ts
 │       ├── format.test.ts

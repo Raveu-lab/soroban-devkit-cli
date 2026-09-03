@@ -147,6 +147,21 @@ sdev bindings generate \
 
 ---
 
+### `sdev chain`
+
+Simulate a sequence of contract calls, in order — checks whether each step of a planned multi-step flow would succeed (and what it would cost) before submitting any of it for real. Each call is simulated independently against current ledger state; this does not compose them into one atomic on-chain transaction.
+
+```bash
+sdev chain --network testnet --steps '[
+  {"contract": "CTOKEN...", "method": "approve", "args": ["GDEX...", "1000000"], "caller": "GXXX..."},
+  {"contract": "CDEX...",   "method": "swap",    "args": ["GXXX...", "1000000"], "caller": "GXXX..."}
+]'
+```
+
+Stops at the first failing step by default; pass `--continue-on-failure` to run every step regardless. `--contract` in each step accepts an alias from `sdev.config.json`, same as `simulate`.
+
+---
+
 ### `sdev completion`
 
 Print a shell completion script for `bash`, `zsh`, or `fish`.
@@ -157,7 +172,7 @@ sdev completion zsh > "${fpath[1]}/_sdev"
 sdev completion fish > ~/.config/fish/completions/sdev.fish
 ```
 
-Completes top-level commands (`simulate`, `decode`, `monitor`, `bindings`, `completion`) and each command's flags.
+Completes top-level commands (`simulate`, `decode`, `monitor`, `bindings`, `chain`, `completion`) and each command's flags.
 
 ---
 
@@ -222,6 +237,7 @@ soroban-devkit-cli/
 │   │   ├── decode.ts
 │   │   ├── monitor.ts
 │   │   ├── bindings.ts
+│   │   ├── chain.ts
 │   │   └── completion.ts
 │   └── utils/
 │       ├── format.ts      # Table and color formatting helpers
@@ -231,7 +247,8 @@ soroban-devkit-cli/
 ├── tests/
 │   ├── commands/
 │   │   ├── simulate.test.ts
-│   │   └── decode.test.ts
+│   │   ├── decode.test.ts
+│   │   └── chain.test.ts
 │   └── utils/
 │       ├── config.test.ts
 │       ├── format.test.ts
@@ -258,7 +275,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up
 
 - [ ] `sdev replay` — replay a historical transaction locally
 - [ ] `sdev diff` — compare contract state before and after a call
-- [ ] `sdev chain` — simulate a sequence of multi-step contract calls
 
 ---
 
