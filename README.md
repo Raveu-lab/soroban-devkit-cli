@@ -248,6 +248,7 @@ soroban-devkit-cli/
 │   ├── commands/
 │   │   ├── simulate.test.ts
 │   │   ├── decode.test.ts
+│   │   ├── monitor.test.ts
 │   │   └── chain.test.ts
 │   └── utils/
 │       ├── config.test.ts

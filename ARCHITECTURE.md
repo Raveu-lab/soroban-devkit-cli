@@ -147,17 +147,22 @@ echo "AAAAB..." | sdev decode
 
 ### `monitor`
 
-**Input:** `--contract` (repeatable), `--filter`, `--interval`, `--network`
+**Input:** `--contract` (repeatable), `--filter`, `--interval`, `--network`, `--rpc-url`, `--start-ledger`
 
 **Flow:**
 ```
-ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs })
+parsePositiveInt(opts.interval, "--interval")        → pollingIntervalMs
+parsePositiveInt(opts.startLedger, "--start-ledger")  → startLedger (if provided)
+  │
+ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs, startLedger })
   .on('event', (e) => format.printEvent(e))
   .on('error', (err) => format.printError(err))
   .start()
 
 process.on('SIGINT', () => monitor.stop())
 ```
+
+`parsePositiveInt` exists because a bare `parseInt` on an invalid `--interval` silently produces `NaN`, and `setTimeout(fn, NaN)` fires after ~0ms rather than throwing — an unvalidated typo would have hammered the RPC in a tight loop instead of failing with a clear error.
 
 **Long-running:** This command runs indefinitely until `Ctrl+C`. Progress is indicated by a status line written to stderr between polling cycles.
 
@@ -291,6 +296,7 @@ soroban-devkit-cli/
 │   ├── commands/
 │   │   ├── simulate.test.ts
 │   │   ├── decode.test.ts
+│   │   ├── monitor.test.ts
 │   │   └── chain.test.ts
 │   └── utils/
 │       ├── config.test.ts
