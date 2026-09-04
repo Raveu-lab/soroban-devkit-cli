@@ -5,6 +5,20 @@ import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
 /**
+ * Parse a CLI numeric flag as a positive integer.
+ * Throws a descriptive error (naming the flag) for anything that isn't one —
+ * an unparseable or non-positive value would otherwise silently become NaN,
+ * and setTimeout(fn, NaN) fires almost immediately rather than erroring.
+ */
+export function parsePositiveInt(raw: string, flagName: string): number {
+  const value = parseInt(raw, 10);
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error(`${flagName} must be a positive integer, got "${raw}"`);
+  }
+  return value;
+}
+
+/**
  * Watch Soroban contracts for real-time events.
  * Runs indefinitely until Ctrl+C. Prints decoded events to stdout.
  *
@@ -31,7 +45,7 @@ export function registerMonitor(program: Command): void {
         const contractIds = (opts.contract ?? config.contracts ?? []).map((id: string) =>
           resolveContractId(id, config)
         );
-        const pollingIntervalMs = parseInt(opts.interval, 10);
+        const pollingIntervalMs = parsePositiveInt(opts.interval, "--interval");
 
         const monitor = new ContractMonitor(networkConfig);
 
@@ -40,7 +54,9 @@ export function registerMonitor(program: Command): void {
             contractIds,
             eventFilter: opts.filter,
             pollingIntervalMs,
-            startLedger: opts.startLedger ? parseInt(opts.startLedger, 10) : undefined,
+            startLedger: opts.startLedger
+              ? parsePositiveInt(opts.startLedger, "--start-ledger")
+              : undefined,
           })
           .on("event", (event) => printEvent(event))
           .on("error", (err) => printError(err.message));
