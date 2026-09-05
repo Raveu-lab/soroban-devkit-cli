@@ -79,20 +79,27 @@ sdev simulate \
 Decode a raw base64 XDR event blob into human-readable JSON.
 
 ```bash
-sdev decode --data "AAAABQAAAAdzdHJpbmcAAAA..."
+sdev decode --data "AAAADwAAAAh0cmFuc2Zlcg=="
 ```
 
 Or pipe from stdin:
 
 ```bash
-echo "AAAABQAAAAdzdHJpbmcAAAA..." | sdev decode
+echo "AAAADwAAAAh0cmFuc2Zlcg==" | sdev decode
+```
+
+Pass `--topics` (space-separated, one base64 XDR blob per topic) to decode a
+Soroban event's topic list alongside its data:
+
+```bash
+sdev decode --data "..." --topics "AAAADwAAAAh0cmFuc2Zlcg==" "AAAAAA=="
 ```
 
 **Output:**
 ```json
 {
-  "type": "symbol",
-  "value": "transfer"
+  "decodedTopics": [],
+  "decodedData": "transfer"
 }
 ```
 

@@ -1,13 +1,39 @@
-/**
- * Tests for the decode command.
- * The decode command is a thin wrapper over EventDecoder from @soroban-devkit/core.
- * Tests here focus on CLI argument parsing and output formatting.
- */
+import { ArgEncoder } from "@soroban-devkit/core";
+import { buildDecodedOutput } from "../../src/commands/decode";
 
-describe("decode command", () => {
-  it("should be tested with valid base64 XDR once fixtures are available", () => {
-    // TODO: Add integration tests using XDR fixtures from soroban-devkit-contracts
-    // See: https://github.com/soroban-devkit/soroban-devkit-cli/issues/8
-    expect(true).toBe(true);
+const encoder = new ArgEncoder();
+const toBase64Xdr = (value: unknown): string => encoder.encode(value).toXDR("base64");
+
+describe("buildDecodedOutput", () => {
+  it("decodes a real symbol XDR data field", () => {
+    const result = buildDecodedOutput(toBase64Xdr("transfer"));
+    expect(result.decodedData).toBe("transfer");
+    expect(result.decodedTopics).toEqual([]);
+  });
+
+  it("decodes real topic XDR fields alongside data", () => {
+    const dataXdr = toBase64Xdr(42);
+    const topic1 = toBase64Xdr("transfer");
+    const topic2 = toBase64Xdr(true);
+
+    const result = buildDecodedOutput(dataXdr, [topic1, topic2]);
+
+    expect(result.decodedData).toBe(42);
+    expect(result.decodedTopics).toEqual(["transfer", true]);
+  });
+
+  it("defaults to an empty topics array when none are given", () => {
+    const result = buildDecodedOutput(toBase64Xdr(false));
+    expect(result.decodedTopics).toEqual([]);
+  });
+
+  it("returns '[decode error]' for invalid base64 XDR instead of throwing", () => {
+    const result = buildDecodedOutput("not-valid-xdr");
+    expect(result.decodedData).toBe("[decode error]");
+  });
+
+  it("trims surrounding whitespace from the data field before decoding", () => {
+    const result = buildDecodedOutput(`  ${toBase64Xdr("hello")}  \n`);
+    expect(result.decodedData).toBe("hello");
   });
 });

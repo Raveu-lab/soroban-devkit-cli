@@ -127,14 +127,15 @@ ContractSimulator.simulate(contractId, method, args, caller)
 
 ### `decode`
 
-**Input:** `--data` (base64 XDR string) OR stdin pipe
+**Input:** `--data` (base64 XDR string) OR stdin pipe, plus optional `--topics <base64...>`
 
 **Flow:**
 ```
 read base64 XDR from --data or process.stdin
-EventDecoder.decode({ data, topics: [] })
-  └─ decodedData
-       └─ JSON.stringify(decodedData, null, 2)
+buildDecodedOutput(data, topics)   → pure, testable without a CLI process
+  └─ EventDecoder.decode({ data, topics, ... })
+       └─ { decodedTopics, decodedData }
+            └─ JSON.stringify(output, null, 2)
 ```
 
 **Stdin support:** If `--data` is not provided, the command reads from `process.stdin`, enabling pipe usage:

@@ -12,6 +12,30 @@ import { printError } from "../utils/format";
  * echo "AAAAB..." | sdev decode
  * ```
  */
+/**
+ * Decode a base64 XDR data field (and optional topic fields) into plain
+ * JavaScript values. Pure — no I/O — so it's testable without a CLI process.
+ */
+export function buildDecodedOutput(
+  data: string,
+  topics: string[] = []
+): { decodedTopics: unknown[]; decodedData: unknown } {
+  const event: ContractEvent = {
+    ledger: 0,
+    ledgerClosedAt: "",
+    contractId: "",
+    id: "",
+    type: "contract",
+    topics,
+    data: data.trim(),
+  };
+
+  const decoder = new EventDecoder();
+  const decoded = decoder.decode(event);
+
+  return { decodedTopics: decoded.decodedTopics ?? [], decodedData: decoded.decodedData };
+}
+
 export function registerDecode(program: Command): void {
   program
     .command("decode")
@@ -32,29 +56,9 @@ export function registerDecode(program: Command): void {
           process.exit(1);
         }
 
-        const event: ContractEvent = {
-          ledger: 0,
-          ledgerClosedAt: "",
-          contractId: "",
-          id: "",
-          type: "contract",
-          topics: opts.topics ?? [],
-          data: data.trim(),
-        };
+        const output = buildDecodedOutput(data, opts.topics ?? []);
 
-        const decoder = new EventDecoder();
-        const decoded = decoder.decode(event);
-
-        process.stdout.write(
-          JSON.stringify(
-            {
-              decodedTopics: decoded.decodedTopics,
-              decodedData: decoded.decodedData,
-            },
-            null,
-            2
-          ) + "\n"
-        );
+        process.stdout.write(JSON.stringify(output, null, 2) + "\n");
       } catch (err) {
         printError(err instanceof Error ? err.message : String(err));
         process.exit(1);
