@@ -152,7 +152,7 @@ echo "AAAAB..." | sdev decode
 
 **Flow:**
 ```
-parsePositiveInt(opts.interval, "--interval")        → pollingIntervalMs
+resolvePollingInterval(opts.interval)                 → pollingIntervalMs | undefined
 parsePositiveInt(opts.startLedger, "--start-ledger")  → startLedger (if provided)
   │
 ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs, startLedger })
@@ -164,6 +164,8 @@ process.on('SIGINT', () => monitor.stop())
 ```
 
 `parsePositiveInt` exists because a bare `parseInt` on an invalid `--interval` silently produces `NaN`, and `setTimeout(fn, NaN)` fires after ~0ms rather than throwing — an unvalidated typo would have hammered the RPC in a tight loop instead of failing with a clear error.
+
+`resolvePollingInterval` returns `undefined` when `--interval` is omitted, rather than defaulting it via Commander's own option default. `pollingIntervalMs: undefined` is what tells `ContractMonitor` to calibrate an adaptive interval instead of using a fixed one — a Commander-level default would have made it always defined, silently disabling adaptive polling from the CLI entirely.
 
 **Long-running:** This command runs indefinitely until `Ctrl+C`. Progress is indicated by a status line written to stderr between polling cycles.
 

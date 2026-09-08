@@ -19,6 +19,19 @@ export function parsePositiveInt(raw: string, flagName: string): number {
 }
 
 /**
+ * Resolve --interval into the value passed to ContractMonitor.watch().
+ * Returns undefined when the flag was omitted, so core's adaptive polling
+ * (calibrated from real ledger close cadence) is used instead of a fixed
+ * interval. A Commander default value here would defeat that — it would
+ * make pollingIntervalMs always defined, so it would always win and the
+ * calibration path in ContractMonitor.resolvePollingIntervalMs() would
+ * never run.
+ */
+export function resolvePollingInterval(raw: string | undefined): number | undefined {
+  return raw === undefined ? undefined : parsePositiveInt(raw, "--interval");
+}
+
+/**
  * Watch Soroban contracts for real-time events.
  * Runs indefinitely until Ctrl+C. Prints decoded events to stdout.
  *
@@ -33,7 +46,10 @@ export function registerMonitor(program: Command): void {
     .description("Watch Soroban contracts for events in real-time")
     .option("--contract <ids...>", "Contract IDs to watch (space-separated)")
     .option("--filter <event>", "Filter by event name (matches first topic)")
-    .option("--interval <ms>", "Polling interval in milliseconds", "5000")
+    .option(
+      "--interval <ms>",
+      "Polling interval in milliseconds (default: adaptive, calibrated from real ledger close cadence)"
+    )
     .option("--network <network>", "Network: mainnet | testnet | futurenet | local")
     .option("--rpc-url <url>", "Custom RPC endpoint (overrides --network)")
     .option("--start-ledger <ledger>", "Start from this ledger sequence number")
@@ -45,7 +61,7 @@ export function registerMonitor(program: Command): void {
         const contractIds = (opts.contract ?? config.contracts ?? []).map((id: string) =>
           resolveContractId(id, config)
         );
-        const pollingIntervalMs = parsePositiveInt(opts.interval, "--interval");
+        const pollingIntervalMs = resolvePollingInterval(opts.interval);
 
         const monitor = new ContractMonitor(networkConfig);
 
@@ -61,8 +77,10 @@ export function registerMonitor(program: Command): void {
           .on("event", (event) => printEvent(event))
           .on("error", (err) => printError(err.message));
 
+        const intervalLabel =
+          pollingIntervalMs !== undefined ? `${pollingIntervalMs}ms` : "adaptive";
         process.stderr.write(
-          `◎ Watching ${contractIds.length ? contractIds.join(", ") : "all contracts"} on ${network} (polling every ${pollingIntervalMs}ms)\n\n`
+          `◎ Watching ${contractIds.length ? contractIds.join(", ") : "all contracts"} on ${network} (polling every ${intervalLabel})\n\n`
         );
 
         await monitor.start();

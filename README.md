@@ -109,6 +109,11 @@ sdev decode --data "..." --topics "AAAADwAAAAh0cmFuc2Zlcg==" "AAAAAA=="
 
 Watch one or more contracts for events in real-time. Prints decoded events as they arrive.
 
+If `--interval` is omitted, the polling interval isn't a fixed guess — it
+adapts to real ledger close cadence (see `ContractMonitor` in
+`@soroban-devkit/core`), clamped to 2-30 seconds. Pass `--interval` to pin
+a fixed value instead.
+
 ```bash
 sdev monitor \
   --network testnet \
@@ -119,7 +124,7 @@ sdev monitor \
 
 **Output:**
 ```
-◎ Watching CXXXXXX... on testnet (polling every 3s)
+◎ Watching CXXXXXX... on testnet (polling every 3000ms)
 
 [12:04:33] Ledger 1204312  transfer
   from:   GABC...

@@ -1,4 +1,4 @@
-import { parsePositiveInt } from "../../src/commands/monitor";
+import { parsePositiveInt, resolvePollingInterval } from "../../src/commands/monitor";
 
 describe("parsePositiveInt", () => {
   it("parses a valid positive integer string", () => {
@@ -31,5 +31,21 @@ describe("parsePositiveInt", () => {
 
   it("truncates a decimal to an integer, matching parseInt's own behavior", () => {
     expect(parsePositiveInt("5000.7", "--interval")).toBe(5000);
+  });
+});
+
+describe("resolvePollingInterval", () => {
+  it("returns undefined when --interval was not passed, so core's adaptive polling kicks in", () => {
+    expect(resolvePollingInterval(undefined)).toBeUndefined();
+  });
+
+  it("parses an explicit --interval value", () => {
+    expect(resolvePollingInterval("3000")).toBe(3000);
+  });
+
+  it("throws a descriptive error for an invalid explicit value", () => {
+    expect(() => resolvePollingInterval("abc")).toThrow(
+      '--interval must be a positive integer, got "abc"'
+    );
   });
 });
