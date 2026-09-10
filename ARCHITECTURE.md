@@ -222,11 +222,11 @@ The command list and each command's flags are declared once in `utils/completion
 
 ### `utils/format.ts`
 
-All terminal output formatting. Imports `chalk` (colors) and `table` (ASCII tables). No Stellar logic.
+All terminal output formatting — plain strings and stdlib `toLocaleString()` for number formatting, no color/table library dependency. No Stellar logic.
 
 | Function | Description |
 |----------|-------------|
-| `printSimulationResult(result)` | Renders cost/footprint as a formatted table |
+| `printSimulationResult(result)` | Renders return value (if any), cost, and footprint |
 | `printEvent(event)` | Renders a decoded contract event with timestamp and ledger |
 | `printError(err)` | Red-colored error message to stderr |
 | `printSuccess(msg)` | Green checkmark + message |

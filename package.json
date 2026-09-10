@@ -15,10 +15,7 @@
   },
   "dependencies": {
     "@soroban-devkit/core": "file:../soroban-devkit-core",
-    "chalk": "^5.3.0",
-    "commander": "^12.1.0",
-    "ora": "^8.0.1",
-    "table": "^6.8.1"
+    "commander": "^12.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
