@@ -63,14 +63,14 @@ sdev simulate \
   Contract:          CXXXXXX...
   Network:           testnet
 
-  ┌─────────────────────┬──────────────────┐
-  │ Metric              │ Value            │
-  ├─────────────────────┼──────────────────┤
-  │ CPU Instructions    │ 1,204,312        │
-  │ Memory Bytes        │ 46,820           │
-  │ Min Resource Fee    │ 132 stroops      │
-  └─────────────────────┴──────────────────┘
+  Return Value     : true
+
+  CPU Instructions : 1,204,312
+  Memory Bytes     : 46,820
+  Instructions     : 1,000
 ```
+
+`Return Value` is the invocation's decoded return value (same type mapping as `sdev decode`) — omitted for calls with no return value.
 
 ---
 

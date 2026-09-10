@@ -27,6 +27,40 @@ describe("format utilities", () => {
       expect(output).toContain("Simulation failed");
       expect(output).toContain("account not found");
     });
+
+    it("includes the decoded return value when the invocation produced one", () => {
+      const result: SimulationResult = {
+        success: true,
+        returnValue: "GABC...",
+        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { cpuInstructions: "0", memoryBytes: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "admin", "testnet");
+      expect(output).toContain("Return Value");
+      expect(output).toContain("GABC...");
+    });
+
+    it("includes a falsy-but-present return value like 0 or false", () => {
+      const result: SimulationResult = {
+        success: true,
+        returnValue: 0,
+        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { cpuInstructions: "0", memoryBytes: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "balance", "testnet");
+      expect(output).toContain("Return Value");
+      expect(output).toMatch(/Return Value\s*:\s*0/);
+    });
+
+    it("omits the return value line entirely when the call had no return value", () => {
+      const result: SimulationResult = {
+        success: true,
+        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { cpuInstructions: "0", memoryBytes: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "set_price", "testnet");
+      expect(output).not.toContain("Return Value");
+    });
   });
 
   describe("formatEvent", () => {

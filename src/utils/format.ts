@@ -28,7 +28,7 @@ export function formatSimulationResult(
   const mem = Number(result.cost.memoryBytes).toLocaleString();
   const inst = result.footprint.instructions.toLocaleString();
 
-  return [
+  const lines = [
     "",
     "✔ Simulation successful",
     "",
@@ -36,11 +36,18 @@ export function formatSimulationResult(
     `  Contract:          ${contractId}`,
     `  Network:           ${network}`,
     "",
+  ];
+  if (result.returnValue !== undefined) {
+    lines.push(`  Return Value     : ${JSON.stringify(result.returnValue)}`, "");
+  }
+  lines.push(
     `  CPU Instructions : ${cpu}`,
     `  Memory Bytes     : ${mem}`,
     `  Instructions     : ${inst}`,
-    "",
-  ].join("\n");
+    ""
+  );
+
+  return lines.join("\n");
 }
 
 /**
