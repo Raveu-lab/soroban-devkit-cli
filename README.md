@@ -72,7 +72,13 @@ sdev simulate \
 
 `Return Value` is the invocation's decoded return value (same type mapping as `sdev decode`) — omitted for calls with no return value.
 
-`--args` values are type-inferred (see `ArgEncoder` in `@soroban-devkit/core`'s README) — plain integers always encode as the *signed* variant. If the target function's parameter is actually `u32`/`u64`/`u128` (common for ids, counts, and thresholds), the call fails with a `WasmVm`/`UnreachableCodeReached` error rather than a clear message — that error means "check whether this argument should be unsigned," not necessarily a bug in the contract. Same applies to `sdev chain`'s `--steps` args.
+`--args` values are type-inferred (see `ArgEncoder` in `@soroban-devkit/core`'s README) — plain integers infer the *signed* variant by default. If the target function's parameter is actually `u32`/`u64`/`u128` (common for ids, counts, and thresholds), pass a single-key hint object instead of a plain number to force the unsigned type:
+
+```bash
+sdev simulate --contract CDAO... --method get_proposal --caller GXXX... --args '[{"$u32": 0}]'
+```
+
+Without the hint, such a call fails with a `WasmVm`/`UnreachableCodeReached` error rather than a clear message — that error means "check whether this argument should be unsigned," not necessarily a bug in the contract. Same applies to `sdev chain`'s `--steps` args.
 
 ---
 
