@@ -6,8 +6,8 @@ describe("format utilities", () => {
     it("returns a success string when simulation succeeded", () => {
       const result: SimulationResult = {
         success: true,
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 1000 },
-        cost: { cpuInstructions: "1204312", memoryBytes: "46820" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 1000 },
+        cost: { minResourceFee: "1204312" },
       };
       const output = formatSimulationResult(result, "CTEST", "transfer", "testnet");
       expect(output).toContain("Simulation successful");
@@ -20,8 +20,8 @@ describe("format utilities", () => {
       const result: SimulationResult = {
         success: false,
         error: "account not found",
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "0", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
       };
       const output = formatSimulationResult(result, "CTEST", "ping", "testnet");
       expect(output).toContain("Simulation failed");
@@ -32,8 +32,8 @@ describe("format utilities", () => {
       const result: SimulationResult = {
         success: true,
         returnValue: "GABC...",
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "0", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
       };
       const output = formatSimulationResult(result, "CTEST", "admin", "testnet");
       expect(output).toContain("Return Value");
@@ -44,8 +44,8 @@ describe("format utilities", () => {
       const result: SimulationResult = {
         success: true,
         returnValue: 0,
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "0", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
       };
       const output = formatSimulationResult(result, "CTEST", "balance", "testnet");
       expect(output).toContain("Return Value");
@@ -55,8 +55,8 @@ describe("format utilities", () => {
     it("omits the return value line entirely when the call had no return value", () => {
       const result: SimulationResult = {
         success: true,
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "0", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
       };
       const output = formatSimulationResult(result, "CTEST", "set_price", "testnet");
       expect(output).not.toContain("Return Value");
@@ -116,28 +116,28 @@ describe("format — additional edge cases", () => {
     it("includes the contract ID in output", () => {
       const result: SimulationResult = {
         success: true,
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "0", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
       };
       const output = formatSimulationResult(result, "CMYCONTRACT", "ping", "testnet");
       expect(output).toContain("CMYCONTRACT");
     });
 
-    it("formats zero CPU instructions as 0", () => {
+    it("formats a zero minResourceFee as 0", () => {
       const result: SimulationResult = {
         success: true,
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "0", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
       };
       const output = formatSimulationResult(result, "CTEST", "ping", "testnet");
       expect(output).toContain("0");
     });
 
-    it("uses locale-formatted numbers for large CPU values", () => {
+    it("uses locale-formatted numbers for a large minResourceFee", () => {
       const result: SimulationResult = {
         success: true,
-        footprint: { readBytes: 0, writeBytes: 0, instructions: 0 },
-        cost: { cpuInstructions: "1000000", memoryBytes: "0" },
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "1000000" },
       };
       const output = formatSimulationResult(result, "CTEST", "ping", "testnet");
       expect(output).toContain("1,000,000");

@@ -24,8 +24,7 @@ export function formatSimulationResult(
     return `\n✖ Simulation failed\n\n  ${result.error}\n`;
   }
 
-  const cpu = Number(result.cost.cpuInstructions).toLocaleString();
-  const mem = Number(result.cost.memoryBytes).toLocaleString();
+  const fee = Number(result.cost.minResourceFee).toLocaleString();
   const inst = result.footprint.instructions.toLocaleString();
 
   const lines = [
@@ -40,12 +39,7 @@ export function formatSimulationResult(
   if (result.returnValue !== undefined) {
     lines.push(`  Return Value     : ${JSON.stringify(result.returnValue)}`, "");
   }
-  lines.push(
-    `  CPU Instructions : ${cpu}`,
-    `  Memory Bytes     : ${mem}`,
-    `  Instructions     : ${inst}`,
-    ""
-  );
+  lines.push(`  Min Resource Fee : ${fee} stroops`, `  Instructions     : ${inst}`, "");
 
   return lines.join("\n");
 }

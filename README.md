@@ -36,7 +36,7 @@ Verify the install:
 sdev --version
 ```
 
-Requires Node.js >= 18.
+Requires Node.js >= 20 (inherited from `@soroban-devkit/core`'s `@stellar/stellar-sdk` dependency).
 
 ---
 
@@ -65,8 +65,7 @@ sdev simulate \
 
   Return Value     : true
 
-  CPU Instructions : 1,204,312
-  Memory Bytes     : 46,820
+  Min Resource Fee : 1,204,312 stroops
   Instructions     : 1,000
 ```
 
