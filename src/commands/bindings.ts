@@ -5,6 +5,14 @@ import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
 /**
+ * Build the success message printed after bindings are written.
+ * Public so it can be tested in isolation.
+ */
+export function successMessage(outputPath: string): string {
+  return `Bindings written to ${outputPath}`;
+}
+
+/**
  * Generate TypeScript bindings from a deployed contract's on-chain WASM spec.
  *
  * @example
@@ -38,7 +46,7 @@ export function registerBindings(program: Command): void {
         });
 
         await gen.generate();
-        printSuccess(`Bindings written to ${opts.output}/${contractId.slice(0, 8)}_bindings.ts`);
+        printSuccess(successMessage(gen.outputPath()));
       } catch (err) {
         printError(err instanceof Error ? err.message : String(err));
         process.exit(1);

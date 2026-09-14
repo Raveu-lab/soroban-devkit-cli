@@ -164,6 +164,8 @@ sdev bindings generate \
 ✔ Bindings written to ./generated/CXXXXXX_bindings.ts
 ```
 
+Generated methods encode `u32`/`u64`/`u128` arguments correctly without you having to think about it — the generator reads the contract's real spec and applies `ArgEncoder`'s unsigned hint automatically where needed.
+
 ---
 
 ### `sdev chain`
