@@ -12,6 +12,12 @@ export type Shell = (typeof SUPPORTED_SHELLS)[number];
 interface CommandSpec {
   name: string;
   flags: string[];
+  /**
+   * Required subcommand name(s) that must come before flags apply —
+   * Commander's nested-command pattern (e.g. `bindings generate`, not
+   * `bindings --contract ...`). Absent/empty for a flat command.
+   */
+  subcommands?: string[];
 }
 
 /** Single source of truth for completions — keep in sync with src/commands/*.ts */
@@ -42,6 +48,7 @@ const COMMANDS: CommandSpec[] = [
   },
   {
     name: "bindings",
+    subcommands: ["generate"],
     flags: ["--contract", "--output", "--network", "--rpc-url"],
   },
   {
@@ -74,6 +81,12 @@ function generateBash(): string {
   const caseArms = COMMANDS.map(
     (c) => `    ${c.name})\n      opts="${c.flags.join(" ")}"\n      ;;`
   ).join("\n");
+  const subcommandArms = COMMANDS.filter((c) => c.subcommands?.length)
+    .map(
+      (c) =>
+        `    ${c.name})\n      if [ "\${COMP_CWORD}" -eq 2 ]; then\n        COMPREPLY=( $(compgen -W "${c.subcommands!.join(" ")}" -- "\${cur}") )\n        return\n      fi\n      ;;`
+    )
+    .join("\n");
 
   return `# bash completion for sdev
 # Install: sdev completion bash > /etc/bash_completion.d/sdev
@@ -87,6 +100,10 @@ _sdev_completions() {
     COMPREPLY=( $(compgen -W "${commandNames}" -- "\${cur}") )
     return
   fi
+
+  case "\${cmd}" in
+${subcommandArms}
+  esac
 
   local opts=""
   case "\${cmd}" in
@@ -103,6 +120,12 @@ function generateZsh(): string {
   const flagCases = COMMANDS.map(
     (c) => `    ${c.name})\n      _values 'flags' ${c.flags.map((f) => `'${f}'`).join(" ")}\n      ;;`
   ).join("\n");
+  const subcommandCases = COMMANDS.filter((c) => c.subcommands?.length)
+    .map(
+      (c) =>
+        `    ${c.name})\n      if (( CURRENT == 3 )); then\n        _values 'subcommand' ${c.subcommands!.map((s) => `'${s}'`).join(" ")}\n        return\n      fi\n      ;;`
+    )
+    .join("\n");
 
   return `#compdef sdev
 # zsh completion for sdev
@@ -120,6 +143,10 @@ ${commandLines}
   fi
 
   local cmd="\${words[2]}"
+  case "\${cmd}" in
+${subcommandCases}
+  esac
+
   case "\${cmd}" in
 ${flagCases}
   esac
@@ -142,11 +169,19 @@ function generateFish(): string {
     );
   }
   for (const c of COMMANDS) {
+    for (const sub of c.subcommands ?? []) {
+      lines.push(
+        `complete -c sdev -n "__fish_seen_subcommand_from ${c.name}; and not __fish_seen_subcommand_from ${sub}" -a "${sub}" -d "sdev ${c.name} ${sub}"`
+      );
+    }
+  }
+  for (const c of COMMANDS) {
+    const condition = c.subcommands?.length
+      ? `__fish_seen_subcommand_from ${c.name}; and __fish_seen_subcommand_from ${c.subcommands.join(" ")}`
+      : `__fish_seen_subcommand_from ${c.name}`;
     for (const flag of c.flags) {
       const flagName = flag.replace(/^--/, "");
-      lines.push(
-        `complete -c sdev -n "__fish_seen_subcommand_from ${c.name}" -l ${flagName}`
-      );
+      lines.push(`complete -c sdev -n "${condition}" -l ${flagName}`);
     }
   }
 

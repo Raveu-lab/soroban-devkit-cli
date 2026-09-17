@@ -42,7 +42,7 @@ The CLI binary is `sdev`, registered via the `bin` field in `package.json`.
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                utils/format.ts                           │
-│         chalk | table | ora spinner                      │
+│    plain strings + toLocaleString() — no color/table lib  │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -215,6 +215,8 @@ getCompletionScript(shell)   ← pure string generation, no shell invoked
 ```
 
 The command list and each command's flags are declared once in `utils/completion.ts` — keep that in sync when adding a command or flag elsewhere.
+
+`bindings` is the one entry with a `subcommands: ["generate"]` field — Commander's nested-command pattern (`sdev bindings generate`, not `sdev bindings --contract ...`). Each generator offers the subcommand name at that position before falling into the flags case; without this, completing right after `bindings` offered `generate`'s flags directly, which Commander doesn't even recognize until `generate` itself is typed.
 
 ---
 
