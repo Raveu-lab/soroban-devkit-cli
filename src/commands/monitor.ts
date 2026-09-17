@@ -19,16 +19,31 @@ export function parsePositiveInt(raw: string, flagName: string): number {
 }
 
 /**
- * Resolve --interval into the value passed to ContractMonitor.watch().
- * Returns undefined when the flag was omitted, so core's adaptive polling
- * (calibrated from real ledger close cadence) is used instead of a fixed
- * interval. A Commander default value here would defeat that — it would
- * make pollingIntervalMs always defined, so it would always win and the
- * calibration path in ContractMonitor.resolvePollingIntervalMs() would
- * never run.
+ * Resolve --interval into the value passed to ContractMonitor.watch(),
+ * falling back to sdev.config.json's pollingIntervalMs when --interval
+ * isn't passed. Returns undefined when neither is set, so core's adaptive
+ * polling (calibrated from real ledger close cadence) is used instead of a
+ * fixed interval. A Commander default value for --interval here would
+ * defeat that — it would make pollingIntervalMs always defined, so it
+ * would always win and the calibration path in
+ * ContractMonitor.resolvePollingIntervalMs() would never run.
  */
-export function resolvePollingInterval(raw: string | undefined): number | undefined {
-  return raw === undefined ? undefined : parsePositiveInt(raw, "--interval");
+export function resolvePollingInterval(
+  cliValue: string | undefined,
+  configValue: number | undefined
+): number | undefined {
+  if (cliValue !== undefined) {
+    return parsePositiveInt(cliValue, "--interval");
+  }
+  if (configValue !== undefined) {
+    if (!Number.isFinite(configValue) || configValue <= 0) {
+      throw new Error(
+        `sdev.config.json's pollingIntervalMs must be a positive integer, got ${configValue}`
+      );
+    }
+    return configValue;
+  }
+  return undefined;
 }
 
 /**
@@ -61,7 +76,7 @@ export function registerMonitor(program: Command): void {
         const contractIds = (opts.contract ?? config.contracts ?? []).map((id: string) =>
           resolveContractId(id, config)
         );
-        const pollingIntervalMs = resolvePollingInterval(opts.interval);
+        const pollingIntervalMs = resolvePollingInterval(opts.interval, config.pollingIntervalMs);
 
         const monitor = new ContractMonitor(networkConfig);
 

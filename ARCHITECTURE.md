@@ -152,8 +152,8 @@ echo "AAAAB..." | sdev decode
 
 **Flow:**
 ```
-resolvePollingInterval(opts.interval)                 → pollingIntervalMs | undefined
-parsePositiveInt(opts.startLedger, "--start-ledger")  → startLedger (if provided)
+resolvePollingInterval(opts.interval, config.pollingIntervalMs) → pollingIntervalMs | undefined
+parsePositiveInt(opts.startLedger, "--start-ledger")            → startLedger (if provided)
   │
 ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs, startLedger })
   .on('event', (e) => format.printEvent(e))
