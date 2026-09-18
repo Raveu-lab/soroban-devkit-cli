@@ -229,6 +229,8 @@ You can set defaults in a `sdev.config.json` file in your project root to avoid 
 }
 ```
 
+`contracts` is the default contract list for `monitor` when `--contract` isn't passed. `pollingIntervalMs` is `monitor`'s default polling interval when `--interval` isn't passed — `--interval` still wins if both are set; omit both for adaptive polling calibrated from real ledger close cadence.
+
 `aliases` lets `--contract` take a friendly name instead of a raw `C...` ID, in `simulate`, `bindings generate`, and `monitor`:
 
 ```bash
