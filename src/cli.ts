@@ -14,12 +14,17 @@ import { registerBindings } from "./commands/bindings";
 import { registerChain } from "./commands/chain";
 import { registerCompletion } from "./commands/completion";
 
+// Read the version from package.json instead of duplicating it as a string
+// literal here — a version bump in one place and not the other would mean
+// `sdev --version` silently reports the wrong version.
+const { version } = require("../package.json") as { version: string };
+
 const program = new Command();
 
 program
   .name("sdev")
   .description("Soroban DevKit CLI — developer tooling for Soroban smart contracts on Stellar")
-  .version("0.1.0");
+  .version(version);
 
 registerSimulate(program);
 registerDecode(program);
