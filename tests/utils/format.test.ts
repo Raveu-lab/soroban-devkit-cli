@@ -188,5 +188,40 @@ describe("format — additional edge cases", () => {
       const output = formatEvent(event);
       expect(output).not.toContain("topics:");
     });
+
+    it("does not leak the bare string \"Invalid Date\" for an unparseable ledgerClosedAt", () => {
+      // new Date("").toLocaleTimeString() returns the literal string
+      // "Invalid Date", which was printed to the user as if it were a
+      // real timestamp — no indication anything was actually wrong.
+      const event: ContractEvent = {
+        ledger: 1,
+        ledgerClosedAt: "",
+        contractId: "CTEST",
+        id: "1",
+        type: "contract",
+        topics: [],
+        data: "",
+        decodedTopics: [],
+        decodedData: undefined,
+      };
+      const output = formatEvent(event);
+      expect(output).not.toContain("Invalid Date");
+    });
+
+    it("still shows a real time for a valid ledgerClosedAt", () => {
+      const event: ContractEvent = {
+        ledger: 1,
+        ledgerClosedAt: "2024-01-01T00:00:00Z",
+        contractId: "CTEST",
+        id: "1",
+        type: "contract",
+        topics: [],
+        data: "",
+        decodedTopics: [],
+        decodedData: undefined,
+      };
+      const output = formatEvent(event);
+      expect(output).toContain(new Date("2024-01-01T00:00:00Z").toLocaleTimeString());
+    });
   });
 });

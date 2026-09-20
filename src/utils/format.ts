@@ -48,7 +48,8 @@ export function formatSimulationResult(
  * Format a decoded ContractEvent into a human-readable string.
  */
 export function formatEvent(event: ContractEvent): string {
-  const time = new Date(event.ledgerClosedAt).toLocaleTimeString();
+  const parsed = new Date(event.ledgerClosedAt);
+  const time = Number.isNaN(parsed.getTime()) ? "unknown time" : parsed.toLocaleTimeString();
   const lines: string[] = [
     `[${time}] Ledger ${event.ledger}  ${event.contractId.slice(0, 8)}...`,
   ];
