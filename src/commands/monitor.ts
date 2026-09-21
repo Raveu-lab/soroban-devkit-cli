@@ -100,12 +100,17 @@ export function registerMonitor(program: Command): void {
 
         await monitor.start();
 
-        // Graceful shutdown on Ctrl+C
-        process.on("SIGINT", () => {
+        // Graceful shutdown on Ctrl+C (SIGINT) or a container/orchestrator
+        // stopping the process (SIGTERM) — Docker/Kubernetes send SIGTERM
+        // on shutdown, not SIGINT, so only handling SIGINT meant sdev
+        // monitor running in a container got killed without this cleanup.
+        const shutdown = (): void => {
           monitor.stop();
           process.stderr.write("\nStopped.\n");
           process.exit(0);
-        });
+        };
+        process.on("SIGINT", shutdown);
+        process.on("SIGTERM", shutdown);
 
         // Keep process alive
         await new Promise(() => {});

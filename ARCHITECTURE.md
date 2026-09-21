@@ -160,8 +160,11 @@ ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs, startLedger
   .on('error', (err) => format.printError(err))
   .start()
 
-process.on('SIGINT', () => monitor.stop())
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
 ```
+
+Both signals share the same `shutdown` handler — `SIGTERM` matters for running `sdev monitor` under a container/orchestrator (Docker/Kubernetes send `SIGTERM` on stop, not `SIGINT`), which would otherwise skip the `monitor.stop()` cleanup entirely.
 
 `parsePositiveInt` exists because a bare `parseInt` on an invalid `--interval` silently produces `NaN`, and `setTimeout(fn, NaN)` fires after ~0ms rather than throwing — an unvalidated typo would have hammered the RPC in a tight loop instead of failing with a clear error.
 
