@@ -26,13 +26,25 @@ Soroban developers today have the `stellar` CLI for deployment and the browser f
 
 ## Installation
 
-```bash
-npm install -g @soroban-devkit/cli
-```
-
-Verify the install:
+Neither `@soroban-devkit/cli` nor `@soroban-devkit/core` is published to npm yet — `npm install -g @soroban-devkit/cli` will 404 until that happens. Until then, run it from source:
 
 ```bash
+# Clone both repos as siblings — cli's package.json depends on core via
+# "file:../soroban-devkit-core", so this exact layout is required:
+#   some-directory/
+#   ├── soroban-devkit-core/
+#   └── soroban-devkit-cli/
+git clone https://github.com/Raveu-lab/soroban-devkit-core.git
+git clone https://github.com/Raveu-lab/soroban-devkit-cli.git
+
+cd soroban-devkit-core && npm install && npm run build && cd ..
+cd soroban-devkit-cli && npm install && npm run build
+
+# Run it directly...
+node dist/cli.js --version
+
+# ...or put `sdev` on your PATH:
+npm link
 sdev --version
 ```
 
