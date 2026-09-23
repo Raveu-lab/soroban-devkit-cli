@@ -66,6 +66,14 @@ export function formatEvent(event: ContractEvent): string {
 }
 
 /**
+ * Format a decoded ContractEvent as JSON — the raw base64 topics/data
+ * alongside the decoded values, unlike formatEvent's human-readable output.
+ */
+export function formatEventJson(event: ContractEvent): string {
+  return JSON.stringify(event);
+}
+
+/**
  * Format an error message.
  */
 export function formatError(message: string): string {
@@ -101,6 +109,16 @@ export function printSimulationResult(
  */
 export function printEvent(event: ContractEvent): void {
   process.stdout.write(formatEvent(event) + "\n");
+}
+
+/**
+ * Print a decoded ContractEvent to stdout as one JSON object per line —
+ * for `--json` mode, so a long-running `sdev monitor` stream stays
+ * consumable by another program (e.g. `jq`) without buffering the whole
+ * output first.
+ */
+export function printEventJson(event: ContractEvent): void {
+  process.stdout.write(formatEventJson(event) + "\n");
 }
 
 /**

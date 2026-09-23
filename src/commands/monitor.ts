@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { ContractMonitor } from "@soroban-devkit/core";
-import { printEvent, printError } from "../utils/format";
+import { printEvent, printEventJson, printError } from "../utils/format";
 import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
@@ -68,6 +68,7 @@ export function registerMonitor(program: Command): void {
     .option("--network <network>", "Network: mainnet | testnet | futurenet | local")
     .option("--rpc-url <url>", "Custom RPC endpoint (overrides --network)")
     .option("--start-ledger <ledger>", "Start from this ledger sequence number")
+    .option("--json", "Output one JSON object per event instead of a formatted line")
     .action(async (opts) => {
       try {
         const config = loadConfig();
@@ -89,7 +90,7 @@ export function registerMonitor(program: Command): void {
               ? parsePositiveInt(opts.startLedger, "--start-ledger")
               : undefined,
           })
-          .on("event", (event) => printEvent(event))
+          .on("event", (event) => (opts.json ? printEventJson(event) : printEvent(event)))
           .on("error", (err) => printError(err.message));
 
         const intervalLabel =

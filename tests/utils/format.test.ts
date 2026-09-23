@@ -1,4 +1,10 @@
-import { formatSimulationResult, formatEvent, formatError, formatSuccess } from "../../src/utils/format";
+import {
+  formatSimulationResult,
+  formatEvent,
+  formatEventJson,
+  formatError,
+  formatSuccess,
+} from "../../src/utils/format";
 import { SimulationResult, ContractEvent } from "@soroban-devkit/core";
 
 describe("format utilities", () => {
@@ -95,6 +101,41 @@ describe("format utilities", () => {
       };
       const output = formatEvent(event);
       expect(output).toContain("999");
+    });
+  });
+
+  describe("formatEventJson", () => {
+    it("produces valid JSON that round-trips the whole event object", () => {
+      const event: ContractEvent = {
+        ledger: 12345,
+        ledgerClosedAt: "2024-01-01T12:00:00Z",
+        contractId: "CABCDEFG",
+        id: "1",
+        type: "contract",
+        topics: ["AAAAAg=="],
+        data: "AAAAAw==",
+        decodedTopics: ["transfer"],
+        decodedData: 1000000,
+      };
+      const output = formatEventJson(event);
+      expect(JSON.parse(output)).toEqual(event);
+    });
+
+    it("includes raw base64 topics/data alongside decoded values, unlike formatEvent's human output", () => {
+      const event: ContractEvent = {
+        ledger: 1,
+        ledgerClosedAt: "2024-01-01T00:00:00Z",
+        contractId: "CTEST",
+        id: "1",
+        type: "contract",
+        topics: ["AAAAAg=="],
+        data: "AAAAAw==",
+        decodedTopics: ["transfer"],
+        decodedData: 500,
+      };
+      const parsed = JSON.parse(formatEventJson(event));
+      expect(parsed.topics).toEqual(["AAAAAg=="]);
+      expect(parsed.data).toBe("AAAAAw==");
     });
   });
 

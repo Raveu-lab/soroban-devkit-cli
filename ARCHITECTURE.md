@@ -148,7 +148,7 @@ echo "AAAAB..." | sdev decode
 
 ### `monitor`
 
-**Input:** `--contract` (repeatable), `--filter`, `--interval`, `--network`, `--rpc-url`, `--start-ledger`
+**Input:** `--contract` (repeatable), `--filter`, `--interval`, `--network`, `--rpc-url`, `--start-ledger`, `--json`
 
 **Flow:**
 ```
@@ -156,13 +156,15 @@ resolvePollingInterval(opts.interval, config.pollingIntervalMs) → pollingInter
 parsePositiveInt(opts.startLedger, "--start-ledger")            → startLedger (if provided)
   │
 ContractMonitor.watch({ contractIds, eventFilter, pollingIntervalMs, startLedger })
-  .on('event', (e) => format.printEvent(e))
+  .on('event', (e) => opts.json ? format.printEventJson(e) : format.printEvent(e))
   .on('error', (err) => format.printError(err))
   .start()
 
 process.on('SIGINT', shutdown)
 process.on('SIGTERM', shutdown)
 ```
+
+`--json` prints one JSON object per event (the full `ContractEvent` — raw base64 `topics`/`data` alongside `decodedTopics`/`decodedData`) instead of the human-formatted block, so a long-running stream stays consumable by another program (`jq`, a log pipeline) without parsing formatted text. Mirrors the `--json` flag already on `simulate`/`chain`, which this command was missing.
 
 Both signals share the same `shutdown` handler — `SIGTERM` matters for running `sdev monitor` under a container/orchestrator (Docker/Kubernetes send `SIGTERM` on stop, not `SIGINT`), which would otherwise skip the `monitor.stop()` cleanup entirely.
 

@@ -44,6 +44,7 @@ const COMMANDS: CommandSpec[] = [
       "--network",
       "--rpc-url",
       "--start-ledger",
+      "--json",
     ],
   },
   {

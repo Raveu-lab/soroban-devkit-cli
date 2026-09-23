@@ -158,6 +158,12 @@ sdev monitor \
 
 Press `Ctrl+C` to stop.
 
+Pass `--json` to print one JSON object per event instead — useful for piping into `jq` or another program without parsing the formatted output:
+
+```bash
+sdev monitor --network testnet --contract CXXXXXX... --json | jq '.decodedTopics'
+```
+
 ---
 
 ### `sdev bindings`
