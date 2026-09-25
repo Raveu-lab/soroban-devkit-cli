@@ -211,7 +211,30 @@ sdev completion zsh > "${fpath[1]}/_sdev"
 sdev completion fish > ~/.config/fish/completions/sdev.fish
 ```
 
-Completes top-level commands (`simulate`, `decode`, `monitor`, `bindings`, `chain`, `completion`) and each command's flags.
+Completes top-level commands (`simulate`, `decode`, `monitor`, `bindings`, `chain`, `completion`, `config`) and each command's flags.
+
+---
+
+### `sdev config validate`
+
+Validate `sdev.config.json`'s shape and report any errors — a typo (an unknown network name, a non-integer `pollingIntervalMs`, a non-string alias) otherwise loads silently and only surfaces much later as an opaque error deep inside whatever command happened to use the bad field.
+
+```bash
+sdev config validate
+```
+
+**Output:**
+```
+✔ sdev.config.json is valid
+```
+or, for an invalid file:
+```
+✖ sdev.config.json has 2 error(s):
+  - network: "mainet" is not a valid network
+  - pollingIntervalMs: must be a positive integer, got -5
+```
+
+Exits `0` if the file is valid or missing (no config file is a valid state — every field is optional), `1` if it has errors.
 
 ---
 

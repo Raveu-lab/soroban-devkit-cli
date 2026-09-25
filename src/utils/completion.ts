@@ -57,6 +57,7 @@ const COMMANDS: CommandSpec[] = [
     flags: ["--steps", "--network", "--rpc-url", "--continue-on-failure", "--json"],
   },
   { name: "completion", flags: [] },
+  { name: "config", subcommands: ["validate"], flags: [] },
 ];
 
 export function isSupportedShell(value: string): value is Shell {

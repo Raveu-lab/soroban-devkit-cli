@@ -37,7 +37,7 @@ The CLI binary is `sdev`, registered via the `bin` field in `package.json`.
         ▼
 ```
 
-`chain.ts` is a fifth command, omitted above only for diagram space — it fits the same box row as the other four, calling into core's `ContractSimulator.simulateSequence()`. `completion.ts` is the sixth and the real exception: it never calls into `soroban-devkit-core` at all — it only reads the static command/flag table in `utils/completion.ts` and prints a script. Both are still registered from `cli.ts` the same way as everything else.
+`chain.ts` is a fifth command, omitted above only for diagram space — it fits the same box row as the other four, calling into core's `ContractSimulator.simulateSequence()`. `completion.ts` is the sixth and the real exception: it never calls into `soroban-devkit-core` at all — it only reads the static command/flag table in `utils/completion.ts` and prints a script. `config.ts` (`sdev config validate`) is the seventh, and doesn't call into `soroban-devkit-core` either — it only validates `utils/config.ts`'s own `SdevConfig` shape. All are still registered from `cli.ts` the same way as everything else.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -225,6 +225,26 @@ The command list and each command's flags are declared once in `utils/completion
 
 ---
 
+### `config`
+
+**Input:** none (reads `sdev.config.json` from the current working directory directly, not via `--` flags)
+
+**Flow:**
+```
+fs.existsSync(CONFIG_FILE)?
+  │
+  ├─ no  → print "No sdev.config.json found — nothing to validate." → exit 0
+  │
+  └─ yes → loadConfig() → validateConfig(config) → string[] of errors
+             │
+             ├─ empty → print "sdev.config.json is valid" → exit 0
+             └─ non-empty → formatValidationResult(errors) → exit 1
+```
+
+`validateConfig` (in `utils/config.ts`) is the actual check — pure, so it's tested without touching the filesystem. `loadConfig()` itself never validated the fields it reads; a typo (`"mainet"` instead of `"mainnet"`, a negative `pollingIntervalMs`) previously loaded silently and only surfaced much later as an opaque error deep inside whatever command happened to use the bad field, far from where the actual mistake was. `config` is Commander's nested-command pattern too (`sdev config validate`), same shape as `bindings generate` — `subcommands: ["validate"]` in `utils/completion.ts`'s `COMMANDS` table.
+
+---
+
 ## Utilities
 
 ### `utils/format.ts`
@@ -296,7 +316,8 @@ soroban-devkit-cli/
 │   │   ├── monitor.ts
 │   │   ├── bindings.ts
 │   │   ├── chain.ts
-│   │   └── completion.ts
+│   │   ├── completion.ts
+│   │   └── config.ts
 │   └── utils/
 │       ├── format.ts
 │       ├── config.ts
@@ -307,7 +328,9 @@ soroban-devkit-cli/
 │   │   ├── simulate.test.ts
 │   │   ├── decode.test.ts
 │   │   ├── monitor.test.ts
-│   │   └── chain.test.ts
+│   │   ├── bindings.test.ts
+│   │   ├── chain.test.ts
+│   │   └── config.test.ts
 │   └── utils/
 │       ├── config.test.ts
 │       ├── format.test.ts

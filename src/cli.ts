@@ -13,6 +13,7 @@ import { registerMonitor } from "./commands/monitor";
 import { registerBindings } from "./commands/bindings";
 import { registerChain } from "./commands/chain";
 import { registerCompletion } from "./commands/completion";
+import { registerConfig } from "./commands/config";
 
 // Read the version from package.json instead of duplicating it as a string
 // literal here — a version bump in one place and not the other would mean
@@ -32,5 +33,6 @@ registerMonitor(program);
 registerBindings(program);
 registerChain(program);
 registerCompletion(program);
+registerConfig(program);
 
 program.parse(process.argv);

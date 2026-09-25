@@ -12,21 +12,21 @@ describe("getCompletionScript", () => {
 
   it("bash script lists every top-level command", () => {
     const script = getCompletionScript("bash");
-    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion"]) {
+    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion", "config"]) {
       expect(script).toContain(cmd);
     }
   });
 
   it("zsh script lists every top-level command", () => {
     const script = getCompletionScript("zsh");
-    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion"]) {
+    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion", "config"]) {
       expect(script).toContain(cmd);
     }
   });
 
   it("fish script lists every top-level command", () => {
     const script = getCompletionScript("fish");
-    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion"]) {
+    for (const cmd of ["simulate", "decode", "monitor", "bindings", "chain", "completion", "config"]) {
       expect(script).toContain(cmd);
     }
   });
@@ -75,6 +75,26 @@ describe("getCompletionScript", () => {
       const script = getCompletionScript("fish");
       expect(script).toContain(
         '-n "__fish_seen_subcommand_from bindings; and __fish_seen_subcommand_from generate" -l contract'
+      );
+    });
+  });
+
+  describe("config's nested 'validate' subcommand", () => {
+    it("bash: offers 'validate' when completing right after 'config'", () => {
+      const script = getCompletionScript("bash");
+      const generateOffer = script.indexOf('compgen -W "validate"');
+      expect(generateOffer).toBeGreaterThan(-1);
+    });
+
+    it("zsh: offers 'validate' as a subcommand value", () => {
+      const script = getCompletionScript("zsh");
+      expect(script).toContain("_values 'subcommand' 'validate'");
+    });
+
+    it("fish: suggests 'validate' only after 'config' has been typed", () => {
+      const script = getCompletionScript("fish");
+      expect(script).toContain(
+        '-n "__fish_seen_subcommand_from config; and not __fish_seen_subcommand_from validate" -a "validate"'
       );
     });
   });
