@@ -123,6 +123,8 @@ ContractSimulator.simulate(contractId, method, args, caller)
 - Default: formatted table with cost metrics
 - `--json`: raw `SimulationResult` as JSON
 
+**Restore-required results:** `SimulationResult.needsRestore`/`restoreFee` (added in `@soroban-devkit/core`'s `ContractSimulator` — see its own ARCHITECTURE.md) previously had no CLI-visible effect at all; `formatSimulationResult`'s failure branch only printed `result.error`, silently dropping `restoreFee` even though core now computes it. It now appends a `Restore required — fee: N stroops` line when `needsRestore` is true.
+
 ---
 
 ### `decode`

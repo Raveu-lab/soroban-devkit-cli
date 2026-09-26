@@ -34,6 +34,35 @@ describe("format utilities", () => {
       expect(output).toContain("account not found");
     });
 
+    it("surfaces restoreFee distinctly when the simulation needs a restore, not just the generic failure message", () => {
+      // core's SimulationResult now carries needsRestore/restoreFee instead
+      // of silently discarding the restore preamble — this CLI command
+      // previously would have printed only the generic error text, with no
+      // indication a restoreFee even existed to show.
+      const result: SimulationResult = {
+        success: false,
+        error: "Contract data needs restoration before this call can succeed.",
+        needsRestore: true,
+        restoreFee: "555555",
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "get_price", "testnet");
+      expect(output).toContain("Restore required");
+      expect(output).toContain("555555");
+    });
+
+    it("does not print a restore fee line for an ordinary failure", () => {
+      const result: SimulationResult = {
+        success: false,
+        error: "insufficient balance",
+        footprint: { diskReadBytes: 0, writeBytes: 0, instructions: 0 },
+        cost: { minResourceFee: "0" },
+      };
+      const output = formatSimulationResult(result, "CTEST", "transfer", "testnet");
+      expect(output).not.toContain("Restore required");
+    });
+
     it("includes the decoded return value when the invocation produced one", () => {
       const result: SimulationResult = {
         success: true,

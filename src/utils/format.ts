@@ -21,7 +21,10 @@ export function formatSimulationResult(
   network: string
 ): string {
   if (!result.success) {
-    return `\n✖ Simulation failed\n\n  ${result.error}\n`;
+    const restoreLine = result.needsRestore
+      ? `\n  Restore required — fee: ${result.restoreFee} stroops\n`
+      : "";
+    return `\n✖ Simulation failed\n\n  ${result.error}\n${restoreLine}`;
   }
 
   const fee = Number(result.cost.minResourceFee).toLocaleString();

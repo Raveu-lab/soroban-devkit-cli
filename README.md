@@ -91,6 +91,18 @@ sdev simulate --contract CDAO... --method get_proposal --caller GXXX... --args '
 
 Without the hint, such a call fails with a `WasmVm`/`UnreachableCodeReached` error rather than a clear message — that error means "check whether this argument should be unsigned," not necessarily a bug in the contract. Same applies to `sdev chain`'s `--steps` args.
 
+If the simulation determined the call would only succeed after archived contract data is restored, the failure output includes a `Restore required` line with the stroops fee for the needed `RestoreFootprintOp`:
+
+```
+✖ Simulation failed
+
+  Contract data needs restoration before this call can succeed.
+
+  Restore required — fee: 555555 stroops
+```
+
+Actually building and submitting that restore operation is outside `sdev`'s scope (it only simulates) — this just tells you a restore is needed and what it costs, instead of a dead-end error.
+
 ---
 
 ### `sdev decode`
