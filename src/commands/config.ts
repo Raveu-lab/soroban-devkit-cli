@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Command } from "commander";
-import { loadConfig, validateConfig, CONFIG_FILE } from "../utils/config";
+import { parseConfig, validateConfig, CONFIG_FILE } from "../utils/config";
 import { printSuccess, printError } from "../utils/format";
 
 /**
@@ -33,8 +33,14 @@ export function registerConfig(program: Command): void {
         return;
       }
 
-      const loaded = loadConfig();
-      const errors = validateConfig(loaded);
+      // Not loadConfig(): that swallows a malformed/non-object file into an
+      // empty config, which would make this command report it as valid.
+      const parsed = parseConfig(fs.readFileSync(configPath, "utf-8"));
+      if ("error" in parsed) {
+        printError(parsed.error);
+        process.exit(1);
+      }
+      const errors = validateConfig(parsed.config);
 
       if (errors.length === 0) {
         printSuccess(`${CONFIG_FILE} is valid`);

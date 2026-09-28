@@ -243,6 +243,8 @@ fs.existsSync(CONFIG_FILE)?
              └─ non-empty → formatValidationResult(errors) → exit 1
 ```
 
+`config validate` reads the file through `parseConfig` (pure: raw text → config or error) rather than `loadConfig()`, because `loadConfig()` deliberately swallows a bad file into an empty config with a warning so other commands keep working — which would have made `validate` report a malformed file as valid. `parseConfig` also rejects valid JSON that isn't an object (`null`, an array, a string, a number): `JSON.parse("null")` returned `null`, which `loadConfig` handed back as the config, crashing every command with `Cannot read properties of null (reading 'network')` — including `config validate` itself, with a raw stack trace.
+
 `validateConfig` (in `utils/config.ts`) is the actual check — pure, so it's tested without touching the filesystem. `loadConfig()` itself never validated the fields it reads; a typo (`"mainet"` instead of `"mainnet"`, a negative `pollingIntervalMs`) previously loaded silently and only surfaced much later as an opaque error deep inside whatever command happened to use the bad field, far from where the actual mistake was. `config` is Commander's nested-command pattern too (`sdev config validate`), same shape as `bindings generate` — `subcommands: ["validate"]` in `utils/completion.ts`'s `COMMANDS` table.
 
 ---

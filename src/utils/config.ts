@@ -16,21 +16,41 @@ export interface SdevConfig {
 export const CONFIG_FILE = "sdev.config.json";
 
 /**
+ * Parse raw sdev.config.json text. Pure — no I/O — so it's testable without
+ * touching the filesystem. Valid JSON that isn't an object (null, an array,
+ * a string, a number) is rejected too: JSON.parse("null") returns null,
+ * which used to be handed back as the config, crashing every command on
+ * `config.network` with "Cannot read properties of null".
+ */
+export function parseConfig(raw: string): { config: SdevConfig } | { error: string } {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { error: `could not parse ${CONFIG_FILE}` };
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return { error: `${CONFIG_FILE} must contain a JSON object` };
+  }
+  return { config: parsed as SdevConfig };
+}
+
+/**
  * Load sdev.config.json from the current working directory.
  * Returns an empty config object if the file does not exist.
- * Returns an empty config and logs a warning if the file is malformed JSON.
+ * Returns an empty config and logs a warning if the file is malformed JSON
+ * or isn't a JSON object.
  */
 export function loadConfig(): SdevConfig {
   const configPath = path.resolve(process.cwd(), CONFIG_FILE);
   if (!fs.existsSync(configPath)) return {};
 
-  try {
-    const raw = fs.readFileSync(configPath, "utf-8");
-    return JSON.parse(raw) as SdevConfig;
-  } catch {
-    process.stderr.write(`Warning: could not parse ${CONFIG_FILE}, ignoring.\n`);
+  const result = parseConfig(fs.readFileSync(configPath, "utf-8"));
+  if ("error" in result) {
+    process.stderr.write(`Warning: ${result.error}, ignoring.\n`);
     return {};
   }
+  return result.config;
 }
 
 /**

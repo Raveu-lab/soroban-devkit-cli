@@ -1,7 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { loadConfig, resolveContractId, validateConfig, CONFIG_FILE } from "../../src/utils/config";
+import {
+  loadConfig,
+  parseConfig,
+  resolveContractId,
+  validateConfig,
+  CONFIG_FILE,
+} from "../../src/utils/config";
 
 describe("loadConfig", () => {
   let tmpDir: string;
@@ -57,6 +63,58 @@ describe("loadConfig", () => {
       JSON.stringify({ rpcHeaders: { "X-Api-Key": "secret" } })
     );
     expect(loadConfig().rpcHeaders).toEqual({ "X-Api-Key": "secret" });
+  });
+});
+
+describe("parseConfig", () => {
+  it("parses a JSON object into a config", () => {
+    expect(parseConfig('{"network":"testnet"}')).toEqual({ config: { network: "testnet" } });
+  });
+
+  it("reports malformed JSON as an error, not a thrown exception", () => {
+    const result = parseConfig("{ invalid json }");
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain("could not parse");
+  });
+
+  it.each([
+    ["null", "null"],
+    ["an array", "[]"],
+    ["a string", '"testnet"'],
+    ["a number", "5"],
+  ])("rejects %s — valid JSON, but not an object", (_label, raw) => {
+    // JSON.parse("null") returns null, which loadConfig used to hand back
+    // as-is — every command then crashed on `config.network` with
+    // "Cannot read properties of null".
+    const result = parseConfig(raw);
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain("JSON object");
+  });
+});
+
+describe("loadConfig with a non-object config file", () => {
+  let tmpDir: string;
+  let originalCwd: string;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "sdev-test-"));
+    originalCwd = process.cwd();
+    process.chdir(tmpDir);
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    fs.rmSync(tmpDir, { recursive: true });
+  });
+
+  it("returns an empty object for a file containing null, instead of null", () => {
+    fs.writeFileSync(path.join(tmpDir, CONFIG_FILE), "null");
+    expect(loadConfig()).toEqual({});
+  });
+
+  it("returns an empty object for a file containing an array", () => {
+    fs.writeFileSync(path.join(tmpDir, CONFIG_FILE), "[]");
+    expect(loadConfig()).toEqual({});
   });
 });
 
