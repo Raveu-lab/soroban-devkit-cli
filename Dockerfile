@@ -21,7 +21,7 @@ COPY --from=core-builder /build/core /build/soroban-devkit-core
 COPY . .
 
 # Install deps (file:../soroban-devkit-core resolves to the copied core above)
-RUN npm install && npm run build && npm test
+RUN npm install && npm run lint && npm run build && npm test
 
 # ─── Stage 3: Runtime image ───────────────────────────────────────────────────
 FROM node:20-alpine AS runtime
