@@ -250,13 +250,15 @@ Exits `0` if the file is valid or missing (no config file is a valid state — e
 
 ---
 
-## Global Options
+## Common Options
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--network` | `mainnet`, `testnet`, `futurenet`, `local` | `testnet` |
-| `--rpc-url` | Custom RPC endpoint (overrides `--network`) | — |
-| `--json` | Output raw JSON instead of formatted tables | `false` |
+Not truly global — only the commands that actually talk to an RPC endpoint accept these (`simulate`, `monitor`, `bindings generate`, `chain`). `decode`, `completion`, and `config validate` don't touch the network at all and reject them with `error: unknown option` if passed.
+
+| Flag | Description | Default | Commands |
+|------|-------------|---------|----------|
+| `--network` | `mainnet`, `testnet`, `futurenet`, `local` | `testnet` | `simulate`, `monitor`, `bindings generate`, `chain` |
+| `--rpc-url` | Custom RPC endpoint (overrides `--network`) | — | `simulate`, `monitor`, `bindings generate`, `chain` |
+| `--json` | Output raw JSON instead of formatted tables | `false` | `simulate`, `monitor`, `chain` |
 
 ---
 
