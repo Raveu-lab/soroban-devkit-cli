@@ -355,6 +355,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and how to pick up
 - [ ] `sdev replay` — replay a historical transaction locally
 - [ ] `sdev diff` — compare contract state before and after a call
 
+See [CHANGELOG.md](CHANGELOG.md) for what's actually shipped so far.
+
 ---
 
 ## License
