@@ -91,6 +91,8 @@ sdev simulate --contract CDAO... --method get_proposal --caller GXXX... --args '
 
 Without the hint, such a call fails with a `WasmVm`/`UnreachableCodeReached` error rather than a clear message — that error means "check whether this argument should be unsigned," not necessarily a bug in the contract. Same applies to `sdev chain`'s `--steps` args.
 
+`--args` values can be an `M...` muxed address (encoded correctly as a contract argument), but `--caller` can't — a muxed address isn't a valid transaction source account. Passing one as `--caller` fails with a clear error telling you to use the underlying `G...` account instead.
+
 If the simulation determined the call would only succeed after archived contract data is restored, the failure output includes a `Restore required` line with the stroops fee for the needed `RestoreFootprintOp`:
 
 ```
