@@ -4,6 +4,7 @@ import {
   formatEventJson,
   formatError,
   formatSuccess,
+  extractErrorMessage,
 } from "../../src/utils/format";
 import { SimulationResult, ContractEvent } from "@soroban-devkit/core";
 
@@ -177,6 +178,39 @@ describe("format utilities", () => {
   describe("formatSuccess", () => {
     it("includes the success message", () => {
       expect(formatSuccess("file written")).toContain("file written");
+    });
+  });
+
+  describe("extractErrorMessage", () => {
+    it("returns a real Error's message", () => {
+      expect(extractErrorMessage(new Error("boom"))).toBe("boom");
+    });
+
+    it("returns .message from a thrown plain object that isn't an Error instance", () => {
+      // @stellar/stellar-sdk/contract's Client.from() throws exactly this
+      // shape for a non-existent contract — confirmed live: a plain
+      // { code: 404, message: "..." } object, not a real Error. Every
+      // command's `err instanceof Error ? err.message : String(err)`
+      // degraded this to the literal string "[object Object]".
+      const sdkStyleError = { code: 404, message: "Could not obtain contract hash from server" };
+      expect(extractErrorMessage(sdkStyleError)).toBe("Could not obtain contract hash from server");
+    });
+
+    it("falls back to String() for a plain string throw", () => {
+      expect(extractErrorMessage("just a string")).toBe("just a string");
+    });
+
+    it("falls back to String() for an object with no message property", () => {
+      expect(extractErrorMessage({ code: 500 })).toBe("[object Object]");
+    });
+
+    it("falls back to String() when message isn't a string", () => {
+      expect(extractErrorMessage({ message: 42 })).toBe("[object Object]");
+    });
+
+    it("falls back to String() for null/undefined", () => {
+      expect(extractErrorMessage(null)).toBe("null");
+      expect(extractErrorMessage(undefined)).toBe("undefined");
     });
   });
 });

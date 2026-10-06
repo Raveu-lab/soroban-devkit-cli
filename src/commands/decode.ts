@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { EventDecoder, ContractEvent } from "@soroban-devkit/core";
-import { printError } from "../utils/format";
+import { printError, extractErrorMessage } from "../utils/format";
 
 /**
  * Decode a raw base64 XDR event blob into human-readable JSON.
@@ -60,7 +60,7 @@ export function registerDecode(program: Command): void {
 
         process.stdout.write(JSON.stringify(output, null, 2) + "\n");
       } catch (err) {
-        printError(err instanceof Error ? err.message : String(err));
+        printError(extractErrorMessage(err));
         process.exit(1);
       }
     });

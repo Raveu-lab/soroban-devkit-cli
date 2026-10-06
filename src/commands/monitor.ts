@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { ContractMonitor } from "@soroban-devkit/core";
-import { printEvent, printEventJson, printError } from "../utils/format";
+import { printEvent, printEventJson, printError, extractErrorMessage } from "../utils/format";
 import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
@@ -116,7 +116,7 @@ export function registerMonitor(program: Command): void {
         // Keep process alive
         await new Promise(() => {});
       } catch (err) {
-        printError(err instanceof Error ? err.message : String(err));
+        printError(extractErrorMessage(err));
         process.exit(1);
       }
     });

@@ -77,6 +77,29 @@ export function formatEventJson(event: ContractEvent): string {
 }
 
 /**
+ * Extract a human-readable message from a caught value of unknown shape.
+ * `err instanceof Error ? err.message : String(err)` was repeated in every
+ * command's catch block, and degraded to the literal string
+ * "[object Object]" for anything thrown that isn't a real Error instance —
+ * confirmed live: `@stellar/stellar-sdk/contract`'s `Client.from()` throws
+ * a plain `{ code, message }` object (not an Error) for a non-existent
+ * contract, so `sdev bindings generate` against a bad contract ID printed
+ * only "[object Object]" instead of the SDK's actual, useful message.
+ */
+export function extractErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message;
+  }
+  if (typeof err === "object" && err !== null && "message" in err) {
+    const message = (err as { message: unknown }).message;
+    if (typeof message === "string") {
+      return message;
+    }
+  }
+  return String(err);
+}
+
+/**
  * Format an error message.
  */
 export function formatError(message: string): string {

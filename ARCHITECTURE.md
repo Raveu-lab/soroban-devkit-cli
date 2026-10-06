@@ -261,6 +261,9 @@ All terminal output formatting — plain strings and stdlib `toLocaleString()` f
 | `printEvent(event)` | Renders a decoded contract event with timestamp and ledger |
 | `printError(err)` | Red-colored error message to stderr |
 | `printSuccess(msg)` | Green checkmark + message |
+| `extractErrorMessage(err)` | Pulls a human-readable message out of a caught value of unknown shape |
+
+Every command's catch block used to do `err instanceof Error ? err.message : String(err)` independently — six near-identical copies. This degraded to the literal string `"[object Object]"` for anything thrown that isn't a real `Error` instance, which isn't just theoretical: `@stellar/stellar-sdk/contract`'s `Client.from()` throws a plain `{ code, message }` object (not an `Error`) for a non-existent contract — confirmed live: `sdev bindings generate` against a bad-but-valid-format contract ID printed only `[object Object]` instead of the SDK's own useful `"Could not obtain contract hash from server"`. `extractErrorMessage` checks for a string `.message` property on any object, not just real `Error` instances, and is now the single shared implementation across all six commands.
 
 ### `utils/config.ts`
 

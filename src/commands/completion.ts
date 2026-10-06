@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { getCompletionScript, SUPPORTED_SHELLS } from "../utils/completion";
-import { printError } from "../utils/format";
+import { printError, extractErrorMessage } from "../utils/format";
 
 /**
  * Print a shell completion script to stdout, for the caller to install.
@@ -21,7 +21,7 @@ export function registerCompletion(program: Command): void {
       try {
         process.stdout.write(getCompletionScript(shell));
       } catch (err) {
-        printError(err instanceof Error ? err.message : String(err));
+        printError(extractErrorMessage(err));
         process.exit(1);
       }
     });

@@ -36,6 +36,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `sdev monitor` only handled `SIGINT`, not `SIGTERM` — Docker/Kubernetes send `SIGTERM` on shutdown, so the monitor got killed without its cleanup running.
 - `loadConfig()` handed back `null`/an array/etc. as-is for valid-but-non-object JSON (`JSON.parse("null")` returns `null`), crashing every command with `Cannot read properties of null`. `sdev config validate` now reports it as a clear error instead.
 - CI's Docker build ran `npm test` but never `npm run lint` — a lint violation could reach `main` undetected. Adding the lint step then exposed a second bug: `.dockerignore` excluded `.eslintrc.json`, so lint failed immediately with "couldn't find a configuration file" once it actually ran.
+- Every command's `catch` block did `err instanceof Error ? err.message : String(err)` independently, which degraded to the literal string `"[object Object]"` for anything thrown that isn't a real `Error` — confirmed live: `@stellar/stellar-sdk/contract`'s `Client.from()` throws a plain `{ code, message }` object for a non-existent contract, so `sdev bindings generate` against a bad contract ID printed only `[object Object]` instead of the SDK's own useful message. Extracted a shared `extractErrorMessage()` that checks for a string `.message` on any object, not just `Error` instances.
 
 ### Changed
 

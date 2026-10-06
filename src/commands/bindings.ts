@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { BindingGenerator } from "@soroban-devkit/core";
-import { printSuccess, printError } from "../utils/format";
+import { printSuccess, printError, extractErrorMessage } from "../utils/format";
 import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
@@ -48,7 +48,7 @@ export function registerBindings(program: Command): void {
         await gen.generate();
         printSuccess(successMessage(gen.outputPath()));
       } catch (err) {
-        printError(err instanceof Error ? err.message : String(err));
+        printError(extractErrorMessage(err));
         process.exit(1);
       }
     });

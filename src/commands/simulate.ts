@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { ContractSimulator, ArgEncoder } from "@soroban-devkit/core";
-import { printSimulationResult, printError } from "../utils/format";
+import { printSimulationResult, printError, extractErrorMessage } from "../utils/format";
 import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
@@ -52,7 +52,7 @@ export function registerSimulate(program: Command): void {
 
         process.exit(result.success ? 0 : 1);
       } catch (err) {
-        printError(err instanceof Error ? err.message : String(err));
+        printError(extractErrorMessage(err));
         process.exit(1);
       }
     });
