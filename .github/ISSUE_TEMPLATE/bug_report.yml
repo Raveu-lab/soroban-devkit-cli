@@ -1,0 +1,77 @@
+name: Bug Report
+description: Report a bug in sdev (soroban-devkit-cli)
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in as much detail as possible.
+
+  - type: input
+    id: version
+    attributes:
+      label: sdev version
+      description: Output of `sdev --version`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: command
+    attributes:
+      label: Which command?
+      options:
+        - simulate
+        - decode
+        - monitor
+        - bindings generate
+        - chain
+        - completion
+        - config validate
+    validations:
+      required: true
+
+  - type: dropdown
+    id: network
+    attributes:
+      label: Network (if applicable)
+      options:
+        - testnet
+        - mainnet
+        - futurenet
+        - local
+        - not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      placeholder: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `sdev simulate --network testnet --contract C... --method ... --caller G...`
+        2. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
