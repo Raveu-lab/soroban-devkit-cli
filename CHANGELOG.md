@@ -39,6 +39,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Every command's `catch` block did `err instanceof Error ? err.message : String(err)` independently, which degraded to the literal string `"[object Object]"` for anything thrown that isn't a real `Error` — confirmed live: `@stellar/stellar-sdk/contract`'s `Client.from()` throws a plain `{ code, message }` object for a non-existent contract, so `sdev bindings generate` against a bad contract ID printed only `[object Object]` instead of the SDK's own useful message. Extracted a shared `extractErrorMessage()` that checks for a string `.message` on any object, not just `Error` instances.
 - This repo had no GitHub issue templates at all, unlike `soroban-devkit-contracts`/`soroban-devkit-core` (both have a bug report template, `core` also has a feature request one) — anyone filing a bug against `sdev` got GitHub's generic blank form instead.
 - No PR template existed in any of the three sibling repos either. `.github/PULL_REQUEST_TEMPLATE.md` now mirrors `CONTRIBUTING.md`'s existing "Pull Request Guidelines" as a checklist.
+- The repo had no actual `LICENSE` file — `package.json` declared `"license": "MIT"`, but there was never an actual license grant for the code, only a field claiming one.
 
 ### Changed
 
