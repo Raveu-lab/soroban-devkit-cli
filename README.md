@@ -83,13 +83,22 @@ sdev simulate \
 
 `Return Value` is the invocation's decoded return value (same type mapping as `sdev decode`) — omitted for calls with no return value.
 
-`--args` values are type-inferred (see `ArgEncoder` in `@soroban-devkit/core`'s README) — plain integers infer the *signed* variant by default. If the target function's parameter is actually `u32`/`u64`/`u128` (common for ids, counts, and thresholds), pass a single-key hint object instead of a plain number to force the unsigned type:
+`--args` values are type-inferred (see `ArgEncoder` in `@soroban-devkit/core`'s README) — plain integers infer the *signed* variant by default. If the target function's parameter is actually `u32`/`u64`/`u128`/`u256` (common for ids, counts, and thresholds), pass a single-key hint object instead of a plain number to force the unsigned type:
 
 ```bash
 sdev simulate --contract CDAO... --method get_proposal --caller GXXX... --args '[{"$u32": 0}]'
 ```
 
 Without the hint, such a call fails with a `WasmVm`/`UnreachableCodeReached` error rather than a clear message — that error means "check whether this argument should be unsigned," not necessarily a bug in the contract. Same applies to `sdev chain`'s `--steps` args.
+
+`Bytes`/`BytesN` parameters need the `$bytes` hint for the same reason, and there is no inference to fall back on: a hex string is indistinguishable from a Symbol or a String, so a bare `"deadbeef"` encodes as a Symbol and a 64-character hash encodes as a String. Both reach the contract as the wrong type.
+
+```bash
+sdev simulate --contract CVAULT... --method claim --caller GXXX... \
+  --args '[{"$bytes": "a1b2c3d4"}]'
+```
+
+The hint takes hex (optionally `0x`-prefixed, case-insensitive) or an array of byte values. Hex is what `sdev decode` prints for a `Bytes` value and what a generated binding types as `string`, so it round-trips directly.
 
 `--args` values can be an `M...` muxed address (encoded correctly as a contract argument), but `--caller` can't — a muxed address isn't a valid transaction source account. Passing one as `--caller` fails with a clear error telling you to use the underlying `G...` account instead.
 
