@@ -15,6 +15,15 @@ export interface SdevConfig {
 
 export const CONFIG_FILE = "sdev.config.json";
 
+/** Every field SdevConfig defines. Anything else in the file is a mistake. */
+const KNOWN_CONFIG_KEYS = [
+  "network",
+  "contracts",
+  "pollingIntervalMs",
+  "aliases",
+  "rpcHeaders",
+] as const satisfies readonly (keyof SdevConfig)[];
+
 /**
  * Parse raw sdev.config.json text. Pure — no I/O — so it's testable without
  * touching the filesystem. Valid JSON that isn't an object (null, an array,
@@ -78,6 +87,16 @@ function isPlainStringRecord(value: unknown): value is Record<string, string> {
  */
 export function validateConfig(config: SdevConfig): string[] {
   const errors: string[] = [];
+
+  // An unknown key is never read by anything, so a misspelling leaves the
+  // setting silently inactive — pollingInterval instead of pollingIntervalMs
+  // just falls back to adaptive polling, and alias instead of aliases leaves
+  // --contract passing the alias through as a literal contract ID.
+  for (const key of Object.keys(config)) {
+    if (!(KNOWN_CONFIG_KEYS as readonly string[]).includes(key)) {
+      errors.push(`${key}: unknown setting — valid keys are ${KNOWN_CONFIG_KEYS.join(", ")}`);
+    }
+  }
 
   if (config.network !== undefined && !isValidNetwork(config.network)) {
     errors.push(`network: "${config.network}" is not a valid network`);

@@ -152,6 +152,26 @@ describe("validateConfig", () => {
     expect(errors).toEqual([]);
   });
 
+  it("rejects a misspelled key instead of silently ignoring it", () => {
+    // The whole point of this command is catching config mistakes at the
+    // config, and a misspelled key is the most common one. pollingInterval
+    // (missing the Ms) is never read, so monitor silently falls back to
+    // adaptive polling and nothing ever reports the typo.
+    const errors = validateConfig({ pollingInterval: 5000 } as never);
+    expect(errors.some((e) => e.includes("pollingInterval"))).toBe(true);
+  });
+
+  it("names the valid keys when reporting an unknown one", () => {
+    const errors = validateConfig({ alias: { dao: "CABC" } } as never);
+    expect(errors.some((e) => e.includes("aliases"))).toBe(true);
+  });
+
+  it("reports every unknown key, not just the first", () => {
+    const errors = validateConfig({ wat: 1, lol: 2 } as never);
+    expect(errors.some((e) => e.includes("wat"))).toBe(true);
+    expect(errors.some((e) => e.includes("lol"))).toBe(true);
+  });
+
   it("rejects an unknown network name", () => {
     // A typo here (e.g. "mainet") previously loaded silently and only
     // surfaced much later as an opaque error deep inside whatever command
