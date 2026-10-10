@@ -81,7 +81,7 @@ sdev simulate \
   Instructions     : 1,000
 ```
 
-`Return Value` is the invocation's decoded return value (same type mapping as `sdev decode`) — omitted for calls with no return value.
+`Return Value` is the invocation's decoded return value (same type mapping as `sdev decode`). A function returning `()` shows `null`, because Soroban represents both unit and `Option::None` as the same `scvVoid` — the two are indistinguishable on the wire, so the line is shown rather than hidden. It is omitted only when the simulation came back with no result at all.
 
 `--args` values are type-inferred (see `ArgEncoder` in `@soroban-devkit/core`'s README) — plain integers infer the *signed* variant by default. If the target function's parameter is actually `u32`/`u64`/`u128`/`u256` (common for ids, counts, and thresholds), pass a single-key hint object instead of a plain number to force the unsigned type:
 
@@ -99,6 +99,15 @@ sdev simulate --contract CVAULT... --method claim --caller GXXX... \
 ```
 
 The hint takes hex (optionally `0x`-prefixed, case-insensitive) or an array of byte values. Hex is what `sdev decode` prints for a `Bytes` value and what a generated binding types as `string`, so it round-trips directly.
+
+`$i64`, `$i256`, `$timepoint` and `$duration` cover the remaining types inference can't reach. `Timepoint` and `Duration` are the ones that come up most — deadlines, cliffs, lock periods and expirations are all declared as one of the two, and a bare integer reaches the contract as an `i128` instead:
+
+```bash
+sdev simulate --contract CVEST... --method create --caller GXXX... \
+  --args '[{"$timepoint": 1760000000}, {"$duration": 86400}]'
+```
+
+The full set of hints: `$u32`, `$u64`, `$u128`, `$u256`, `$i64`, `$i256`, `$timepoint`, `$duration`, `$bytes`. Plain integers and digit strings already cover `i32` and `i128`.
 
 `--args` values can be an `M...` muxed address (encoded correctly as a contract argument), but `--caller` can't — a muxed address isn't a valid transaction source account. Passing one as `--caller` fails with a clear error telling you to use the underlying `G...` account instead.
 

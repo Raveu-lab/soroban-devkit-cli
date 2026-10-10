@@ -20,8 +20,13 @@ interface CommandSpec {
   subcommands?: string[];
 }
 
-/** Single source of truth for completions — keep in sync with src/commands/*.ts */
-const COMMANDS: CommandSpec[] = [
+/**
+ * Single source of truth for completions. Exported so a test can diff it
+ * against the real Commander program rather than leaving the two to be
+ * kept in sync by hand — completion has already drifted once, offering
+ * `bindings`' flags before its required `generate` subcommand.
+ */
+export const COMMANDS: CommandSpec[] = [
   {
     name: "simulate",
     flags: [

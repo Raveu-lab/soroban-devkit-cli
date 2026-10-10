@@ -1,4 +1,12 @@
-import { getCompletionScript, SUPPORTED_SHELLS } from "../../src/utils/completion";
+import { Command } from "commander";
+import { getCompletionScript, SUPPORTED_SHELLS, COMMANDS } from "../../src/utils/completion";
+import { registerSimulate } from "../../src/commands/simulate";
+import { registerDecode } from "../../src/commands/decode";
+import { registerMonitor } from "../../src/commands/monitor";
+import { registerBindings } from "../../src/commands/bindings";
+import { registerChain } from "../../src/commands/chain";
+import { registerCompletion } from "../../src/commands/completion";
+import { registerConfig } from "../../src/commands/config";
 
 describe("getCompletionScript", () => {
   it("supports bash, zsh, and fish", () => {
@@ -97,5 +105,54 @@ describe("getCompletionScript", () => {
         '-n "__fish_seen_subcommand_from config; and not __fish_seen_subcommand_from validate" -a "validate"'
       );
     });
+  });
+});
+
+describe("COMMANDS stays in sync with the real CLI", () => {
+  /**
+   * Build the actual Commander program the same way src/cli.ts does, then
+   * diff it against the completion table. Without this, the table is kept
+   * accurate by hand and a new command or flag silently goes missing from
+   * every shell's completions.
+   */
+  function buildRealProgram(): Command {
+    const program = new Command();
+    registerSimulate(program);
+    registerDecode(program);
+    registerMonitor(program);
+    registerBindings(program);
+    registerChain(program);
+    registerCompletion(program);
+    registerConfig(program);
+    return program;
+  }
+
+  const real = buildRealProgram();
+  const longFlags = (cmd: Command): string[] =>
+    cmd.options.map((o) => o.long).filter((l): l is string => Boolean(l));
+
+  it("lists every command the CLI actually registers, and no others", () => {
+    expect(COMMANDS.map((c) => c.name).sort()).toEqual(real.commands.map((c) => c.name()).sort());
+  });
+
+  it.each(COMMANDS.map((c) => c.name))("lists %s's real flags", (name) => {
+    const cmd = real.commands.find((c) => c.name() === name);
+    if (!cmd) throw new Error(`${name} is in COMMANDS but not registered`);
+    const spec = COMMANDS.find((c) => c.name === name)!;
+
+    // A command with a required subcommand carries its flags there, which is
+    // the distinction completion got wrong before.
+    const expected = spec.subcommands?.length
+      ? cmd.commands.flatMap((sub) => longFlags(sub))
+      : longFlags(cmd);
+
+    expect([...spec.flags].sort()).toEqual([...new Set(expected)].sort());
+  });
+
+  it.each(COMMANDS.map((c) => c.name))("lists %s's real subcommands", (name) => {
+    const cmd = real.commands.find((c) => c.name() === name)!;
+    expect([...(COMMANDS.find((c) => c.name === name)!.subcommands ?? [])].sort()).toEqual(
+      cmd.commands.map((s) => s.name()).sort()
+    );
   });
 });
