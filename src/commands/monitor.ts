@@ -6,13 +6,20 @@ import { resolveNetworkConfig } from "../utils/network";
 
 /**
  * Parse a CLI numeric flag as a positive integer.
- * Throws a descriptive error (naming the flag) for anything that isn't one —
- * an unparseable or non-positive value would otherwise silently become NaN,
- * and setTimeout(fn, NaN) fires almost immediately rather than erroring.
+ * Throws a descriptive error (naming the flag) for anything that isn't one.
+ *
+ * The whole string has to be digits. parseInt would stop at the first
+ * character it can't read and hand back the prefix, which turns a typo
+ * into a plausible-looking wrong number instead of an error: "10e3" means
+ * 10 rather than 10000, and "1,000" means 1 — a one-millisecond poll
+ * against a public RPC endpoint. The original failure this guarded was
+ * milder, a non-numeric value becoming NaN and setTimeout(fn, NaN) firing
+ * almost immediately.
  */
 export function parsePositiveInt(raw: string, flagName: string): number {
-  const value = parseInt(raw, 10);
-  if (!Number.isFinite(value) || value <= 0) {
+  const trimmed = raw.trim();
+  const value = Number(trimmed);
+  if (!/^\d+$/.test(trimmed) || !Number.isSafeInteger(value) || value <= 0) {
     throw new Error(`${flagName} must be a positive integer, got "${raw}"`);
   }
   return value;
@@ -36,7 +43,9 @@ export function resolvePollingInterval(
     return parsePositiveInt(cliValue, "--interval");
   }
   if (configValue !== undefined) {
-    if (!Number.isFinite(configValue) || configValue <= 0) {
+    // Integer, not just finite, so this agrees with validateConfig() about
+    // whether the same sdev.config.json is valid.
+    if (!Number.isSafeInteger(configValue) || configValue <= 0) {
       throw new Error(
         `sdev.config.json's pollingIntervalMs must be a positive integer, got ${configValue}`
       );

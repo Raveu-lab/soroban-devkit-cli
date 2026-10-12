@@ -29,8 +29,32 @@ describe("parsePositiveInt", () => {
     );
   });
 
-  it("truncates a decimal to an integer, matching parseInt's own behavior", () => {
-    expect(parsePositiveInt("5000.7", "--interval")).toBe(5000);
+  it("accepts surrounding whitespace", () => {
+    expect(parsePositiveInt("  5000  ", "--interval")).toBe(5000);
+  });
+
+  // parseInt stops at the first character it can't read and returns the
+  // prefix it managed to parse, so each of these used to be accepted as a
+  // plausible-looking wrong number rather than rejected. "1,000" becoming
+  // 1 is the one that bites: a one-millisecond poll against a public RPC.
+  it.each([
+    ["10e3", "scientific notation, meant 10000, parsed as 10"],
+    ["5.9", "a decimal, silently truncated"],
+    ["1,000", "a thousands separator, parsed as 1"],
+    ["5000abc", "a typo, silently accepted as 5000"],
+    ["3 000", "an internal space, parsed as 3"],
+  ])("rejects %s (%s)", (raw) => {
+    expect(() => parsePositiveInt(raw, "--interval")).toThrow(
+      `--interval must be a positive integer, got "${raw}"`
+    );
+  });
+
+  it("rejects a value too large to represent exactly", () => {
+    // Number("99999999999999999999") is 1e20 — past Number.MAX_SAFE_INTEGER,
+    // so the value silently stops being the one the user typed.
+    expect(() => parsePositiveInt("99999999999999999999", "--start-ledger")).toThrow(
+      /--start-ledger must be a positive integer/
+    );
   });
 });
 
@@ -69,6 +93,14 @@ describe("resolvePollingInterval", () => {
   it("throws for a non-integer config.pollingIntervalMs", () => {
     expect(() => resolvePollingInterval(undefined, NaN)).toThrow(
       "sdev.config.json's pollingIntervalMs must be a positive integer, got NaN"
+    );
+  });
+
+  it("throws for a fractional config.pollingIntervalMs, agreeing with sdev config validate", () => {
+    // validateConfig() rejects 3000.5, but monitor only checked isFinite
+    // and > 0, so the two disagreed about whether the same file was valid.
+    expect(() => resolvePollingInterval(undefined, 3000.5)).toThrow(
+      "sdev.config.json's pollingIntervalMs must be a positive integer, got 3000.5"
     );
   });
 });
