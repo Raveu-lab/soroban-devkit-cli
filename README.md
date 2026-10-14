@@ -6,6 +6,8 @@
 [![npm version](https://img.shields.io/npm/v/@soroban-devkit/cli)](https://www.npmjs.com/package/@soroban-devkit/cli)
 [![CI](https://github.com/Raveu-lab/soroban-devkit-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Raveu-lab/soroban-devkit-cli/actions)
 
+**▶ [See it working](demo/) — a walkthrough against live testnet contracts, with real captured output.** Reproduce it yourself with `./demo/run.sh`.
+
 ---
 
 ## What is this?

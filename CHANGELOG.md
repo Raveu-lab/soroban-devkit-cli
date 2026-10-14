@@ -12,6 +12,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `demo/` — a walkthrough of every command against the live testnet deployments, with real captured output rather than illustrative snippets, plus `demo/run.sh` to reproduce it. The repo previously had no way for a reader to see the tool working without installing it, cloning the contracts and finding a deployed address themselves.
+
 - `sdev simulate`, `sdev decode`, `sdev monitor`, `sdev bindings generate` — the initial scaffold.
 - `sdev.config.json` support for contract aliases (`--contract` can take a friendly name instead of a raw `C...` ID).
 - `sdev.config.json`'s `rpcHeaders`, for paid RPC providers that need an API key header.
