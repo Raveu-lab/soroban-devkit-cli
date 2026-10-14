@@ -1,6 +1,12 @@
 import { Command } from "commander";
 import { ContractMonitor } from "@soroban-devkit/core";
-import { printEvent, printEventJson, printError, extractErrorMessage } from "../utils/format";
+import {
+  printEvent,
+  printEventJson,
+  printError,
+  extractErrorMessage,
+  formatWatchBanner,
+} from "../utils/format";
 import { loadConfig, resolveContractId } from "../utils/config";
 import { resolveNetworkConfig } from "../utils/network";
 
@@ -105,7 +111,7 @@ export function registerMonitor(program: Command): void {
         const intervalLabel =
           pollingIntervalMs !== undefined ? `${pollingIntervalMs}ms` : "adaptive";
         process.stderr.write(
-          `◎ Watching ${contractIds.length ? contractIds.join(", ") : "all contracts"} on ${network} (polling every ${intervalLabel})\n\n`
+          formatWatchBanner(contractIds, network, intervalLabel, opts.filter) + "\n\n"
         );
 
         await monitor.start();

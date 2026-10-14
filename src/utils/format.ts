@@ -100,6 +100,24 @@ export function extractErrorMessage(err: unknown): string {
 }
 
 /**
+ * Format the banner `sdev monitor` prints before it starts polling.
+ *
+ * Naming the active event filter matters: without it the banner for a
+ * filtered watch was byte-identical to an unfiltered one, so there was no
+ * way to tell from the output whether `--filter` had taken effect.
+ */
+export function formatWatchBanner(
+  contractIds: string[],
+  network: string,
+  intervalLabel: string,
+  eventFilter?: string
+): string {
+  const target = contractIds.length ? contractIds.join(", ") : "all contracts";
+  const filter = eventFilter ? ` for "${eventFilter}" events` : "";
+  return `◎ Watching ${target} on ${network}${filter} (polling every ${intervalLabel})`;
+}
+
+/**
  * Format an error message.
  */
 export function formatError(message: string): string {

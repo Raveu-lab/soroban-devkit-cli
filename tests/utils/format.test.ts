@@ -5,6 +5,7 @@ import {
   formatError,
   formatSuccess,
   extractErrorMessage,
+  formatWatchBanner,
 } from "../../src/utils/format";
 import { SimulationResult, ContractEvent } from "@soroban-devkit/core";
 
@@ -327,5 +328,34 @@ describe("format — additional edge cases", () => {
       const output = formatEvent(event);
       expect(output).toContain(new Date("2024-01-01T00:00:00Z").toLocaleTimeString());
     });
+  });
+});
+
+describe("formatWatchBanner", () => {
+  it("names the contracts being watched", () => {
+    expect(formatWatchBanner(["CABC", "CXYZ"], "testnet", "5000ms")).toBe(
+      "◎ Watching CABC, CXYZ on testnet (polling every 5000ms)"
+    );
+  });
+
+  it("says 'all contracts' when none are given", () => {
+    expect(formatWatchBanner([], "testnet", "adaptive")).toBe(
+      "◎ Watching all contracts on testnet (polling every adaptive)"
+    );
+  });
+
+  it("reports an active event filter, so you can tell it took effect", () => {
+    // Without this, `sdev monitor --filter transfer` printed a banner
+    // identical to the unfiltered one — which is how a dropped filter went
+    // unnoticed in the first place.
+    expect(formatWatchBanner([], "testnet", "adaptive", "transfer")).toBe(
+      '◎ Watching all contracts on testnet for "transfer" events (polling every adaptive)'
+    );
+  });
+
+  it("reports the filter alongside named contracts too", () => {
+    expect(formatWatchBanner(["CABC"], "mainnet", "5000ms", "mint")).toBe(
+      '◎ Watching CABC on mainnet for "mint" events (polling every 5000ms)'
+    );
   });
 });
