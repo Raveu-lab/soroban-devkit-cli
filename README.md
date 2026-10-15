@@ -288,6 +288,12 @@ Not truly global — only the commands that actually talk to an RPC endpoint acc
 
 You can set defaults in a `sdev.config.json` file in your project root to avoid repeating flags:
 
+Copy [sdev.config.example.json](sdev.config.example.json) to get started:
+
+```bash
+cp sdev.config.example.json sdev.config.json
+```
+
 ```json
 {
   "network": "testnet",
