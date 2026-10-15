@@ -247,6 +247,16 @@ sdev completion fish > ~/.config/fish/completions/sdev.fish
 
 Completes top-level commands (`simulate`, `decode`, `monitor`, `bindings`, `chain`, `completion`, `config`) and each command's flags.
 
+#### After installing
+
+The raw redirect above only writes the script. To actually get tab completion, do the follow-up step that matches your shell:
+
+- **Bash** — a new login shell picks up `/etc/bash_completion.d/sdev` automatically; in a shell that is already open, reload with `source /etc/bash_completion.d/sdev` (or `source ~/.bashrc` if you appended to it). Writing to `/etc/...` needs `sudo`; without it, append to `~/.bashrc` instead, which is per-user and needs no password.
+- **zsh** — the target directory must already be in your `fpath` (it is in a stock zsh install). If you are not sure `compinit` has been run in the current session, run `autoload -U compinit && compinit` before the completion will fire; `fpath` entries loaded later are picked up on the next `compinit`.
+- **fish** — completions in `~/.config/fish/completions/` are picked up by new shells automatically; in a shell that is already open, run `source ~/.config/fish/completions/sdev.fish`.
+
+Verify it works by typing `sdev <tab>` (top-level commands) or `sdev monitor <tab>` (that command's flags) in a fresh shell. If nothing completes, the script has not been loaded yet — usually a missing `compinit` (zsh) or an unsourced file (bash/fish).
+
 ---
 
 ### `sdev config validate`
