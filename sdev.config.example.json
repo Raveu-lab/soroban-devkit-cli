@@ -1,0 +1,15 @@
+{
+  "network": "testnet",
+  "contracts": [
+    "CABCDEF01234567890ABCDEF01234567890ABCDEF01234567890AB",
+    "CXYZABC09876543210XYZABC09876543210XYZABC09876543210CD"
+  ],
+  "pollingIntervalMs": 5000,
+  "aliases": {
+    "token": "CABCDEF01234567890ABCDEF01234567890ABCDEF01234567890AB",
+    "multisig": "CXYZABC09876543210XYZABC09876543210XYZABC09876543210CD"
+  },
+  "rpcHeaders": {
+    "X-Api-Key": "replace-me-with-your-provider-key"
+  }
+}

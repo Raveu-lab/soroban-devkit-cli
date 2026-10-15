@@ -1,14 +1,14 @@
 {
   "name": "@soroban-devkit/cli",
   "version": "0.1.0",
-  "description": "CLI for Soroban DevKit — simulate, decode, monitor, and generate bindings from your terminal",
+  "description": "CLI for Soroban DevKit \u2014 simulate, decode, monitor, and generate bindings from your terminal",
   "main": "dist/cli.js",
   "bin": {
     "sdev": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "node api.js && tsc",
+    "dev": "node api.js && tsc --watch",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.ts\""
