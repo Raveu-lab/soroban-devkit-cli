@@ -18,7 +18,7 @@ import { registerConfig } from "./commands/config";
 // Read the version from package.json instead of duplicating it as a string
 // literal here — a version bump in one place and not the other would mean
 // `sdev --version` silently reports the wrong version.
-const { version } = require("../package.json") as { version: string };
+import { version } from "../package.json";
 
 const program = new Command();
 
