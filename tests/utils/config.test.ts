@@ -141,12 +141,19 @@ describe("validateConfig", () => {
     expect(validateConfig({})).toEqual([]);
   });
 
+  // Real deployed contract IDs from soroban-devkit-contracts' ADDRESSES.md —
+  // the point of the strkey checks below is that a string merely shaped
+  // like "CABC..." is not good enough, so the "valid config" fixture needs
+  // genuine strkeys too, not placeholders that happen to start with C.
+  const REAL_TOKEN_ID = "CCEQRERHTDQU5Q45JRBRWSFF6QS22TWRURAIOH27FK23ZPOB6YNXRHSX";
+  const REAL_MULTISIG_ID = "CCJZKGFUIHYBKZNGO4AW5HHYPJ4PLVYDJ2B342BLG3V5J23KI3CIAKUO";
+
   it("returns no errors for a fully valid config", () => {
     const errors = validateConfig({
       network: "testnet",
-      contracts: ["CABC", "CXYZ"],
+      contracts: [REAL_TOKEN_ID, REAL_MULTISIG_ID],
       pollingIntervalMs: 5000,
-      aliases: { token: "CABC" },
+      aliases: { token: REAL_TOKEN_ID },
       rpcHeaders: { "X-Api-Key": "secret" },
     });
     expect(errors).toEqual([]);
@@ -197,7 +204,17 @@ describe("validateConfig", () => {
   });
 
   it("rejects a contracts array containing a non-string", () => {
-    const errors = validateConfig({ contracts: ["CABC", 5 as never] });
+    const errors = validateConfig({ contracts: [REAL_TOKEN_ID, 5 as never] });
+    expect(errors.some((e) => e.includes("contracts"))).toBe(true);
+  });
+
+  it("rejects a contracts entry that isn't a valid contract ID", () => {
+    // 56 characters, starts with C, but not a real strkey — base32 excludes
+    // 0/1/8/9, and this is the exact placeholder an external PR used in an
+    // example config, which sdev config validate couldn't catch before.
+    const errors = validateConfig({
+      contracts: ["CABCDEF01234567890ABCDEF01234567890ABCDEF01234567890AB"],
+    });
     expect(errors.some((e) => e.includes("contracts"))).toBe(true);
   });
 
@@ -209,6 +226,24 @@ describe("validateConfig", () => {
   it("rejects an aliases value that isn't a string", () => {
     const errors = validateConfig({ aliases: { token: 5 as never } });
     expect(errors.some((e) => e.includes("aliases"))).toBe(true);
+  });
+
+  it("rejects an aliases value that isn't a valid contract ID", () => {
+    const errors = validateConfig({
+      aliases: { token: "CABCDEF01234567890ABCDEF01234567890ABCDEF01234567890AB" },
+    });
+    expect(errors.some((e) => e.includes("aliases") && e.includes("token"))).toBe(true);
+  });
+
+  it("names the specific alias that's invalid, not just that one is", () => {
+    const errors = validateConfig({
+      aliases: {
+        token: REAL_TOKEN_ID,
+        multisig: "CABCDEF01234567890ABCDEF01234567890ABCDEF01234567890AB",
+      },
+    });
+    expect(errors.some((e) => e.includes("multisig"))).toBe(true);
+    expect(errors.some((e) => e.includes("token"))).toBe(false);
   });
 
   it("rejects rpcHeaders that isn't a plain object", () => {

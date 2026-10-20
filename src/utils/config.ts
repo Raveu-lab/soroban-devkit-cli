@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Network } from "@soroban-devkit/core";
+import { Network, isValidContractId } from "@soroban-devkit/core";
 import { isValidNetwork } from "./network";
 
 export interface SdevConfig {
@@ -114,11 +114,23 @@ export function validateConfig(config: SdevConfig): string[] {
       errors.push("contracts: must be an array of strings");
     } else if (!config.contracts.every((c) => typeof c === "string")) {
       errors.push("contracts: every entry must be a string");
+    } else {
+      for (const id of config.contracts) {
+        if (!isValidContractId(id)) {
+          errors.push(`contracts: "${id}" is not a valid contract ID`);
+        }
+      }
     }
   }
 
   if (config.aliases !== undefined && !isPlainStringRecord(config.aliases)) {
     errors.push("aliases: must be an object mapping alias names to contract ID strings");
+  } else if (config.aliases !== undefined) {
+    for (const [name, id] of Object.entries(config.aliases)) {
+      if (!isValidContractId(id)) {
+        errors.push(`aliases: "${name}" is set to "${id}", which is not a valid contract ID`);
+      }
+    }
   }
 
   if (config.rpcHeaders !== undefined && !isPlainStringRecord(config.rpcHeaders)) {
