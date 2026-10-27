@@ -26,6 +26,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- `.gitignore` had no entry for `generated/`, `sdev bindings generate`'s own default `--output` directory, documented as such in this README's own Quick Start example. Running the command with no `--output` flag, exactly as documented, left an untracked-but-not-ignored directory sitting in the working tree, one `git add -A` away from committing generated, derived code. Confirmed by running `sdev bindings generate` with no `--output` flag in this repo's own checkout and checking `git status`.
 - `npm run lint`'s glob (`src/**/*.ts`) was unquoted, so the shell expanded it before eslint ever saw it, and the default shell has `globstar` off — the pattern matched only files inside subdirectories, never `src/cli.ts` itself. The entry point has been unlinted since this script was written. Switched to `eslint src --ext .ts`, which does its own recursion; confirmed it actually reaches `cli.ts` by injecting an unused variable there and watching lint catch it. Fixing it surfaced a real `@typescript-eslint/no-var-requires` error in `cli.ts`, now resolved by importing `package.json`'s `version` directly (`resolveJsonModule` added to `tsconfig.json`) instead of a bare `require()`.
 - `sdev simulate` imported `@stellar/stellar-sdk` directly instead of going through core's `ArgEncoder` — forced consumers to depend on the Stellar SDK themselves.
 - `--rpc-url` was declared as a flag on `sdev simulate` but silently had no effect.
