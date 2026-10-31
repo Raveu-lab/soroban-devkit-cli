@@ -109,7 +109,14 @@ sdev simulate --contract CVEST... --method create --caller GXXX... \
   --args '[{"$timepoint": 1760000000}, {"$duration": 86400}]'
 ```
 
-The full set of hints: `$u32`, `$u64`, `$u128`, `$u256`, `$i64`, `$i256`, `$timepoint`, `$duration`, `$bytes`. Plain integers and digit strings already cover `i32` and `i128`.
+A `String` parameter has the same problem from the other direction: a short `[A-Za-z0-9_]` value — exactly what a real proposal description or similar free-text field looks like — infers as a Symbol instead, and reaches the contract as the wrong type just like the cases above. `$string` forces it:
+
+```bash
+sdev simulate --contract CDAO... --method propose --caller GXXX... \
+  --args '[GXXX..., {"$string": "upgrade_treasury"}, {"$u64": 86400}]'
+```
+
+The full set of hints: `$u32`, `$u64`, `$u128`, `$u256`, `$i64`, `$i256`, `$timepoint`, `$duration`, `$bytes`, `$string`. Plain integers and digit strings already cover `i32` and `i128`.
 
 `--args` values can be an `M...` muxed address (encoded correctly as a contract argument), but `--caller` can't — a muxed address isn't a valid transaction source account. Passing one as `--caller` fails with a clear error telling you to use the underlying `G...` account instead.
 
