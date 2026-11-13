@@ -49,7 +49,7 @@ export function registerBindings(program: Command): void {
         printSuccess(successMessage(gen.outputPath()));
       } catch (err) {
         printError(extractErrorMessage(err));
-        process.exit(1);
+        process.exitCode = 1;
       }
     });
 }

@@ -50,10 +50,20 @@ export function registerSimulate(program: Command): void {
           printSimulationResult(result, contractId, opts.method, network);
         }
 
-        process.exit(result.success ? 0 : 1);
+        // exitCode, not exit(): calling exit() right after a large write
+        // can truncate it when stdout is piped — Node may not have
+        // finished flushing the write to the OS pipe yet, and exit() tears
+        // the process down regardless. Confirmed directly: a 200KB write
+        // immediately followed by process.exit() lands truncated to one
+        // pipe-buffer's worth (65536 bytes) when piped to another process;
+        // setting exitCode and letting the event loop drain naturally
+        // delivers the full write every time. --json output has no size
+        // cap (a large returnValue, or many steps via `sdev chain`), so
+        // this is reachable, not just theoretical.
+        process.exitCode = result.success ? 0 : 1;
       } catch (err) {
         printError(extractErrorMessage(err));
-        process.exit(1);
+        process.exitCode = 1;
       }
     });
 }

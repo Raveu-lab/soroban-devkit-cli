@@ -132,7 +132,13 @@ export function registerMonitor(program: Command): void {
         await new Promise(() => {});
       } catch (err) {
         printError(extractErrorMessage(err));
-        process.exit(1);
+        // exitCode, not exit(): unlike the SIGINT/SIGTERM shutdown()
+        // handler above, nothing here keeps the event loop alive (the
+        // keep-alive promise and signal handlers are only registered
+        // *after* monitor.start() succeeds), so there's no need for exit()
+        // to force termination — and exitCode avoids the write-truncation
+        // risk the same way it does in the other commands.
+        process.exitCode = 1;
       }
     });
 }

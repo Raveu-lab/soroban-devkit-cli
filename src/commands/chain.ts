@@ -107,10 +107,15 @@ export function registerChain(program: Command): void {
         }
 
         const allSucceeded = results.length === steps.length && results.every((r) => r.success);
-        process.exit(allSucceeded ? 0 : 1);
+        // exitCode, not exit(): see simulate.ts's identical comment —
+        // confirmed directly that exit() right after a large write can
+        // truncate it when piped, and --json here has no size cap at all
+        // (it's one array entry per --steps entry, which the caller
+        // controls).
+        process.exitCode = allSucceeded ? 0 : 1;
       } catch (err) {
         printError(extractErrorMessage(err));
-        process.exit(1);
+        process.exitCode = 1;
       }
     });
 }

@@ -38,7 +38,12 @@ export function registerConfig(program: Command): void {
       const parsed = parseConfig(fs.readFileSync(configPath, "utf-8"));
       if ("error" in parsed) {
         printError(parsed.error);
-        process.exit(1);
+        // exitCode, not exit(): exit()'s `never` return type was also
+        // doing double duty narrowing `parsed` to { config } below — this
+        // needs its own explicit return to get the same narrowing (and to
+        // actually stop here, since exitCode alone doesn't).
+        process.exitCode = 1;
+        return;
       }
       const errors = validateConfig(parsed.config);
 
@@ -49,6 +54,9 @@ export function registerConfig(program: Command): void {
 
       printError(`${CONFIG_FILE} has ${errors.length} error(s):`);
       process.stderr.write(formatValidationResult(errors) + "\n");
-      process.exit(1);
+      // exitCode, not exit(): see simulate.ts's comment — a long enough
+      // error list (one per bad alias/contract ID) is unbounded the same
+      // way --json output is.
+      process.exitCode = 1;
     });
 }

@@ -53,7 +53,12 @@ export function registerDecode(program: Command): void {
 
         if (!data) {
           printError("Provide --data or pipe a base64 XDR string via stdin");
-          process.exit(1);
+          // exitCode, not exit(): exit() terminates immediately, so this
+          // used to rely on the process dying before the code below could
+          // run on empty data — exitCode doesn't stop execution on its
+          // own, so this now needs its own explicit return.
+          process.exitCode = 1;
+          return;
         }
 
         const output = buildDecodedOutput(data, opts.topics ?? []);
@@ -61,7 +66,7 @@ export function registerDecode(program: Command): void {
         process.stdout.write(JSON.stringify(output, null, 2) + "\n");
       } catch (err) {
         printError(extractErrorMessage(err));
-        process.exit(1);
+        process.exitCode = 1;
       }
     });
 }
