@@ -355,7 +355,8 @@ soroban-devkit-cli/
 │   │   ├── monitor.ts
 │   │   ├── bindings.ts
 │   │   ├── chain.ts
-│   │   └── completion.ts
+│   │   ├── completion.ts
+│   │   └── config.ts
 │   └── utils/
 │       ├── format.ts      # Table and color formatting helpers
 │       ├── config.ts      # Config file loader, contract aliases
@@ -366,12 +367,15 @@ soroban-devkit-cli/
 │   │   ├── simulate.test.ts
 │   │   ├── decode.test.ts
 │   │   ├── monitor.test.ts
-│   │   └── chain.test.ts
-│   └── utils/
-│       ├── config.test.ts
-│       ├── format.test.ts
-│       ├── network.test.ts
-│       └── completion.test.ts
+│   │   ├── bindings.test.ts
+│   │   ├── chain.test.ts
+│   │   └── config.test.ts
+│   ├── utils/
+│   │   ├── config.test.ts
+│   │   ├── format.test.ts
+│   │   ├── network.test.ts
+│   │   └── completion.test.ts
+│   └── stdout-flush.test.ts
 ├── package.json
 ├── tsconfig.json
 └── README.md

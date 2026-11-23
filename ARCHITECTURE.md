@@ -338,11 +338,12 @@ soroban-devkit-cli/
 │   │   ├── bindings.test.ts
 │   │   ├── chain.test.ts
 │   │   └── config.test.ts
-│   └── utils/
-│       ├── config.test.ts
-│       ├── format.test.ts
-│       ├── network.test.ts
-│       └── completion.test.ts
+│   ├── utils/
+│   │   ├── config.test.ts
+│   │   ├── format.test.ts
+│   │   ├── network.test.ts
+│   │   └── completion.test.ts
+│   └── stdout-flush.test.ts
 ├── package.json
 ├── tsconfig.json
 ├── ARCHITECTURE.md
